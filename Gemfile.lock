@@ -391,14 +391,6 @@ GEM
       actionpack (>= 6.1)
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
-    sqlite3 (2.7.2-aarch64-linux-gnu)
-    sqlite3 (2.7.2-aarch64-linux-musl)
-    sqlite3 (2.7.2-arm-linux-gnu)
-    sqlite3 (2.7.2-arm-linux-musl)
-    sqlite3 (2.7.2-arm64-darwin)
-    sqlite3 (2.7.2-x86_64-darwin)
-    sqlite3 (2.7.2-x86_64-linux-gnu)
-    sqlite3 (2.7.2-x86_64-linux-musl)
     sshkit (1.24.0)
       base64
       logger
@@ -465,22 +457,25 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   kamal
-  pg
+  pg (~> 1.1)
   propshaft
   puma (>= 5.0)
   rails (~> 8.0.2)
+  rubocop
   rubocop-rails-omakase
-  sassc-rails
+  sassc-rails (~> 2.1)
   selenium-webdriver
   solid_cable
   solid_cache
   solid_queue
-  sqlite3 (>= 2.1)
   stimulus-rails
   thruster
   turbo-rails
   tzinfo-data
   web-console
+
+RUBY VERSION
+   ruby 3.2.2p53
 
 BUNDLED WITH
    2.5.11
