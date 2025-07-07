@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name - Ruby on Rails Developer Portfolio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for Inter font and general body */
+        body {
+            font-family: 'Inter', sans-serif;
+            @apply bg-gray-50 text-gray-800;
+        }
+
+        /* Smooth scrolling for anchor links */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Modal specific styles */
+        .modal {
+            @apply fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 animate-fade-in;
+        }
+        .modal-content {
+            @apply bg-white p-8 rounded-2xl shadow-2xl max-w-2xl w-full relative transform scale-95 animate-scale-in;
+        }
+        .modal-close-button {
+            @apply absolute top-4 right-4 text-gray-500 hover:text-gray-900 text-3xl font-bold transition-colors duration-200;
+        }
+
+        /* Custom styles for active skill filter button */
+        .skill-button.active {
+            @apply bg-gradient-to-r from-blue-600 to-purple-700 text-white shadow-lg transform scale-105;
+        }
+
+        /* Form validation feedback */
+        .input-error {
+            @apply border-red-500 ring-red-200 ring-2;
+        }
+        .error-message {
+            @apply text-red-600 text-sm mt-1 font-medium;
+        }
+
+        /* Keyframe animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        .animate-scale-in {
+            animation: scaleIn 0.3s ease-out forwards;
+        }
+
+        /* Custom scrollbar for aesthetics */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white shadow-md py-4 px-6 md:px-10 sticky top-0 z-40">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#" class="text-2xl font-extrabold text-gray-900 hover:text-blue-600 transition-colors duration-300">Your Name</a>
+            <nav>
+                <ul class="flex space-x-6 md:space-x-10 text-lg font-medium text-gray-700">
+                    <li><a href="#about" class="hover:text-blue-600 transition-colors duration-300">About</a></li>
+                    <li><a href="#skills" class="hover:text-blue-600 transition-colors duration-300">Skills</a></li>
+                    <li><a href="#projects" class="hover:text-blue-600 transition-colors duration-300">Projects</a></li>
+                    <li><a href="#experience" class="hover:text-blue-600 transition-colors duration-300">Experience</a></li>
+                    <li><a href="#contact" class="hover:text-blue-600 transition-colors duration-300">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative bg-gradient-to-br from-blue-600 to-purple-700 text-white py-20 md:py-32 text-center overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
+        <div class="container mx-auto px-4 relative z-10">
+            <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 animate-fade-in-up">
+                Hi, I'm <span class="text-yellow-300">Your Name</span>
+            </h1>
+            <p class="text-xl md:text-2xl font-light mb-10 max-w-3xl mx-auto animate-fade-in-up delay-100">
+                A passionate Ruby on Rails Developer building robust and scalable web applications.
+            </p>
+            <div class="flex justify-center space-x-6 animate-fade-in-up delay-200">
+                <a href="#projects" class="bg-white text-blue-700 hover:bg-blue-100 font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                    View My Work
+                </a>
+                <a href="#contact" class="border-2 border-white text-white hover:bg-white hover:text-blue-700 font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                    Get in Touch
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Me Section -->
+    <section id="about" class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-12">
+            <div class="md:w-1/3 text-center">
+                <img src="https://placehold.co/300x300/a0aec0/ffffff?text=Your+Photo" alt="Your Profile Photo" class="rounded-full w-64 h-64 object-cover mx-auto shadow-xl border-4 border-white transform hover:scale-105 transition-transform duration-300">
+            </div>
+            <div class="md:w-2/3 text-center md:text-left">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">About Me</h2>
+                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                    Hello! I'm [Your Name], a dedicated Ruby on Rails developer with [X] years of experience in crafting high-quality, maintainable, and scalable web applications. I'm passionate about clean code, test-driven development, and solving complex problems with elegant solutions.
+                </p>
+                <p class="text-lg text-gray-700 leading-relaxed">
+                    My expertise primarily lies in backend development with Ruby on Rails, but I also enjoy working with modern JavaScript frameworks like React.js to build dynamic and engaging user interfaces. I thrive in collaborative environments and am always eager to learn and adopt new technologies to deliver exceptional user experiences.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-16 md:py-24 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-center text-gray-900 mb-12 leading-tight">My Skills</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Skill Category: Backend -->
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <span class="mr-3 text-blue-600">&#9881;</span> Backend Development
+                    </h3>
+                    <ul class="list-disc list-inside text-lg text-gray-700 space-y-2">
+                        <li>Ruby on Rails</li>
+                        <li>RESTful APIs / GraphQL</li>
+                        <li>PostgreSQL, MySQL</li>
+                        <li>Redis, Sidekiq</li>
+                        <li>Authentication (Devise, JWT)</li>
+                    </ul>
+                </div>
+
+                <!-- Skill Category: Frontend -->
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <span class="mr-3 text-purple-600">&#9900;</span> Frontend Development
+                    </h3>
+                    <ul class="list-disc list-inside text-lg text-gray-700 space-y-2">
+                        <li>HTML5, CSS3, JavaScript (ES6+)</li>
+                        <li>React.js / Stimulus.js</li>
+                        <li>Tailwind CSS, Bootstrap</li>
+                        <li>Responsive Design</li>
+                        <li>Webpack, Vite</li>
+                    </ul>
+                </div>
+
+                <!-- Skill Category: Tools & Methodologies -->
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <span class="mr-3 text-green-600">&#9874;</span> Tools & Methodologies
+                    </h3>
+                    <ul class="list-disc list-inside text-lg text-gray-700 space-y-2">
+                        <li>Git, GitHub, GitLab</li>
+                        <li>Docker, Heroku, AWS</li>
+                        <li>RSpec, Minitest, Capybara</li>
+                        <li>TDD, BDD, Agile/Scrum</li>
+                        <li>CI/CD (GitHub Actions, CircleCI)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-center text-gray-900 mb-12 leading-tight">My Projects</h2>
+
+            <!-- Skill Filter Buttons -->
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <button class="skill-button bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-7 rounded-full transition-all duration-300 transform hover:scale-105" data-filter="all">All</button>
+                <button class="skill-button bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-7 rounded-full transition-all duration-300 transform hover:scale-105" data-filter="rails">Ruby on Rails</button>
+                <button class="skill-button bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-7 rounded-full transition-all duration-300 transform hover:scale-105" data-filter="backend">Backend</button>
+                <button class="skill-button bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-7 rounded-full transition-all duration-300 transform hover:scale-105" data-filter="frontend">Frontend</button>
+                <button class="skill-button bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-7 rounded-full transition-all duration-300 transform hover:scale-105" data-filter="javascript">JavaScript</button>
+                <button class="skill-button bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-7 rounded-full transition-all duration-300 transform hover:scale-105" data-filter="api">API Development</button>
+                <button class="skill-button bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-7 rounded-full transition-all duration-300 transform hover:scale-105" data-filter="testing">Testing</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <!-- Project Card 1 -->
+                <div class="project-card group bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden" data-category="rails backend fullstack">
+                    <img src="https://placehold.co/600x400/3498db/ffffff?text=E-commerce+App" alt="E-commerce App" class="w-full h-52 object-cover transition-transform duration-300 group-hover:scale-105">
+                    <div class="p-7">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-3">E-commerce Platform</h3>
+                        <p class="text-gray-700 mb-5 text-base leading-relaxed">A robust e-commerce solution built with Ruby on Rails, featuring product management, user authentication, and a secure checkout process.</p>
+                        <div class="flex flex-wrap gap-2 mb-5">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">Rails</span>
+                            <span class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">PostgreSQL</span>
+                            <span class="bg-purple-100 text-purple-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">Stripe API</span>
+                        </div>
+                        <button class="view-details-btn w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+                                data-title="E-commerce Platform"
+                                data-description="This comprehensive e-commerce platform handles everything from product listings and inventory management to user accounts, shopping carts, and secure payment processing via Stripe. It includes an admin dashboard for full control over products and orders, and a responsive frontend for a seamless shopping experience."
+                                data-technologies="Ruby on Rails, PostgreSQL, Stripe API, Stimulus.js, Tailwind CSS, RSpec"
+                                data-link="https://github.com/yourusername/ecommerce-app">
+                            View Details &#x2192;
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Project Card 2 -->
+                <div class="project-card group bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden" data-category="rails backend api">
+                    <img src="https://placehold.co/600x400/27ae60/ffffff?text=API+Service" alt="API Service" class="w-full h-52 object-cover transition-transform duration-300 group-hover:scale-105">
+                    <div class="p-7">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-3">RESTful API Service</h3>
+                        <p class="text-gray-700 mb-5 text-base leading-relaxed">A high-performance API built with Rails, designed to serve data for mobile and web applications, focusing on efficiency and security.</p>
+                        <div class="flex flex-wrap gap-2 mb-5">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">Rails API</span>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">JWT Auth</span>
+                            <span class="bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">Redis</span>
+                        </div>
+                        <button class="view-details-btn w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+                                data-title="RESTful API Service"
+                                data-description="This project is a robust RESTful API backend, providing endpoints for a variety of data operations. It features secure authentication using JWT, extensive API documentation with Swagger, and performance optimizations with Redis caching. Designed for scalability and easy integration with various client applications."
+                                data-technologies="Ruby on Rails (API Mode), PostgreSQL, JWT, Redis, RSpec, Swagger"
+                                data-link="https://github.com/yourusername/api-service">
+                            View Details &#x2192;
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Project Card 3 -->
+                <div class="project-card group bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden" data-category="frontend javascript fullstack">
+                    <img src="https://placehold.co/600x400/e74c3c/ffffff?text=Interactive+Dashboard" alt="Interactive Dashboard" class="w-full h-52 object-cover transition-transform duration-300 group-hover:scale-105">
+                    <div class="p-7">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-3">Interactive Dashboard</h3>
+                        <p class="text-gray-700 mb-5 text-base leading-relaxed">A dynamic dashboard for data visualization, built with a Rails backend and a modern JavaScript frontend framework for real-time updates.</p>
+                        <div class="flex flex-wrap gap-2 mb-5">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">Rails</span>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">React.js</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">WebSockets</span>
+                        </div>
+                        <button class="view-details-btn w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+                                data-title="Interactive Dashboard"
+                                data-description="This project features an interactive data dashboard. The backend, built with Ruby on Rails, provides data via an API and real-time updates using Action Cable (WebSockets). The frontend, developed with React.js, visualizes complex data sets with interactive charts and tables, allowing users to filter and analyze information dynamically."
+                                data-technologies="Ruby on Rails, React.js, Action Cable, PostgreSQL, Chart.js, Tailwind CSS"
+                                data-link="https://github.com/yourusername/dashboard-app">
+                            View Details &#x2192;
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Project Card 4 -->
+                <div class="project-card group bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden" data-category="ruby cli testing">
+                    <img src="https://placehold.co/600x400/9b59b6/ffffff?text=CLI+Tool" alt="CLI Tool" class="w-full h-52 object-cover transition-transform duration-300 group-hover:scale-105">
+                    <div class="p-7">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-3">Ruby CLI Tool</h3>
+                        <p class="text-gray-700 mb-5 text-base leading-relaxed">A command-line interface tool developed in pure Ruby for data processing and automation tasks.</p>
+                        <div class="flex flex-wrap gap-2 mb-5">
+                            <span class="bg-pink-100 text-pink-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">Pure Ruby</span>
+                            <span class="bg-gray-100 text-gray-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">CLI</span>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">Rake</span>
+                        </div>
+                        <button class="view-details-btn w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+                                data-title="Ruby CLI Tool"
+                                data-description="This project is a standalone command-line interface (CLI) tool written in pure Ruby. It automates complex data manipulation, file parsing, and report generation tasks. Designed for efficiency and ease of use, it demonstrates strong Ruby programming fundamentals, including robust error handling and modular design."
+                                data-technologies="Ruby, Thor (CLI Gem), RSpec, CSV parsing"
+                                data-link="https://github.com/yourusername/ruby-cli-tool">
+                            View Details &#x2192;
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Project Details Modal (Hidden by default) -->
+        <div id="projectModal" class="modal hidden">
+            <div class="modal-content">
+                <button class="modal-close-button">&times;</button>
+                <h3 id="modalTitle" class="text-3xl font-bold text-gray-900 mb-4"></h3>
+                <p id="modalDescription" class="text-gray-700 mb-4"></p>
+                <p class="text-gray-800 font-semibold mb-2">Technologies Used:</p>
+                <p id="modalTechnologies" class="text-gray-600 mb-4"></p>
+                <a id="modalLink" href="#" target="_blank" class="inline-block bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
+                    View on GitHub &#x2192;
+                </a>
+            </div>
+        </div>
+
+        <!-- Experience Section -->
+        <section id="experience" class="py-16 md:py-24 bg-gray-100">
+            <div class="container mx-auto px-4">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-center text-gray-900 mb-12 leading-tight">Experience & Education</h2>
+
+                <div class="max-w-3xl mx-auto space-y-12">
+                    <!-- Experience 1 -->
+                    <div class="relative pl-8 md:pl-16 pb-8 border-l-4 border-blue-400">
+                        <div class="absolute -left-2 md:-left-4 top-0 w-4 h-4 md:w-8 md:h-8 bg-blue-600 rounded-full shadow-md"></div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Senior Ruby on Rails Developer</h3>
+                        <p class="text-xl font-semibold text-gray-700 mb-1">Tech Solutions Inc. | Jan 2022 - Present</p>
+                        <p class="text-lg text-gray-600 mb-4">New York, NY</p>
+                        <ul class="list-disc list-inside text-lg text-gray-700 space-y-2">
+                            <li>Led the development of scalable backend services for a SaaS product, impacting over 10,000 users.</li>
+                            <li>Optimized database queries and refactored legacy code, improving application performance by 30%.</li>
+                            <li>Mentored junior developers and contributed to architectural decisions for new features.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Experience 2 -->
+                    <div class="relative pl-8 md:pl-16 pb-8 border-l-4 border-blue-400">
+                        <div class="absolute -left-2 md:-left-4 top-0 w-4 h-4 md:w-8 md:h-8 bg-blue-600 rounded-full shadow-md"></div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Ruby Developer</h3>
+                        <p class="text-xl font-semibold text-gray-700 mb-1">Web Innovations Co. | June 2019 - Dec 2021</p>
+                        <p class="text-lg text-gray-600 mb-4">San Francisco, CA</p>
+                        <ul class="list-disc list-inside text-lg text-gray-700 space-y-2">
+                            <li>Developed and maintained features for a large-scale content management system using Ruby on Rails.</li>
+                            <li>Wrote comprehensive RSpec tests, achieving 90%+ code coverage for new functionalities.</li>
+                            <li>Collaborated with product managers and designers to translate requirements into technical solutions.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Education -->
+                    <div class="relative pl-8 md:pl-16 pb-8 border-l-4 border-blue-400">
+                        <div class="absolute -left-2 md:-left-4 top-0 w-4 h-4 md:w-8 md:h-8 bg-blue-600 rounded-full shadow-md"></div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Bachelor of Science in Computer Science</h3>
+                        <p class="text-xl font-semibold text-gray-700 mb-1">University of Technology | 2015 - 2019</p>
+                        <p class="text-lg text-gray-600 mb-4">City, State</p>
+                        <ul class="list-disc list-inside text-lg text-gray-700 space-y-2">
+                            <li>Graduated with Honors.</li>
+                            <li>Focused on Software Engineering and Web Development.</li>
+                            <li>Completed capstone project: "Online Learning Platform" using Ruby on Rails.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Form Section -->
+        <section id="contact" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-center text-gray-900 mb-12 leading-tight">Get in Touch</h2>
+                <div class="max-w-2xl mx-auto bg-gradient-to-br from-white to-gray-50 p-10 rounded-2xl shadow-xl border border-gray-100">
+                    <p class="text-lg text-gray-700 text-center mb-8">
+                        Have a question, a project idea, or just want to say hello? Feel free to reach out!
+                    </p>
+                    <form id="contactForm" class="space-y-7">
+                        <div>
+                            <label for="name" class="block text-lg font-medium text-gray-700 mb-2">Name:</label>
+                            <input type="text" id="name" name="name" class="block w-full p-4 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 shadow-sm" required>
+                            <p id="nameError" class="error-message hidden">Name is required.</p>
+                        </div>
+                        <div>
+                            <label for="email" class="block text-lg font-medium text-gray-700 mb-2">Email:</label>
+                            <input type="email" id="email" name="email" class="block w-full p-4 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 shadow-sm" required>
+                            <p id="emailError" class="error-message hidden">A valid email is required.</p>
+                        </div>
+                        <div>
+                            <label for="message" class="block text-lg font-medium text-gray-700 mb-2">Message:</label>
+                            <textarea id="message" name="message" rows="6" class="block w-full p-4 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 shadow-sm" required></textarea>
+                            <p id="messageError" class="error-message hidden">Message cannot be empty.</p>
+                        </div>
+                        <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
+                            Send Message &#x27A1;
+                        </button>
+                        <div id="formSuccess" class="hidden bg-green-100 border border-green-400 text-green-700 px-5 py-4 rounded-lg relative mt-4 shadow-sm" role="alert">
+                            <strong class="font-bold">Success!</strong>
+                            <span class="block sm:inline"> Your message has been sent. Thank you!</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-900 text-white py-8 px-6 md:px-10 text-center shadow-xl">
+        <p class="text-lg mb-4">&copy; 2025 Your Name. All rights reserved.</p>
+        <div class="flex justify-center space-x-6 text-2xl">
+            <a href="https://github.com/yourusername" target="_blank" class="hover:text-blue-400 transition duration-300 transform hover:scale-110" aria-label="GitHub Profile">
+                <!-- GitHub SVG Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.082-.744.084-.729.084-.729 1.199.086 1.839 1.237 1.839 1.237 1.06 1.835 2.792 1.305 3.492.998.108-.776.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            </a>
+            <a href="https://linkedin.com/in/yourusername" target="_blank" class="hover:text-blue-400 transition duration-300 transform hover:scale-110" aria-label="LinkedIn Profile">
+                <!-- LinkedIn SVG Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        // --- Project Details Modal Logic ---
+        const projectModal = document.getElementById('projectModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+        const modalTechnologies = document.getElementById('modalTechnologies');
+        const modalLink = document.getElementById('modalLink');
+        const modalCloseButton = document.querySelector('.modal-close-button');
+        const viewDetailsButtons = document.querySelectorAll('.view-details-btn');
+
+        viewDetailsButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                modalTitle.textContent = button.dataset.title;
+                modalDescription.textContent = button.dataset.description;
+                modalTechnologies.textContent = button.dataset.technologies;
+                modalLink.href = button.dataset.link;
+                projectModal.classList.remove('hidden');
+            });
+        });
+
+        modalCloseButton.addEventListener('click', () => {
+            projectModal.classList.add('hidden');
+        });
+
+        // Close modal if clicked outside content
+        projectModal.addEventListener('click', (e) => {
+            if (e.target === projectModal) {
+                projectModal.classList.add('hidden');
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !projectModal.classList.contains('hidden')) {
+                projectModal.classList.add('hidden');
+            }
+        });
+
+        // --- Skill Filter Logic ---
+        const skillButtons = document.querySelectorAll('.skill-button');
+        const projectCards = document.querySelectorAll('.project-card');
+
+        skillButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                skillButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to the clicked button
+                button.classList.add('active');
+
+                const filter = button.dataset.filter;
+
+                projectCards.forEach(card => {
+                    const categories = card.dataset.category.split(' '); // Split categories by space
+                    if (filter === 'all' || categories.includes(filter)) {
+                        card.style.display = 'block'; // Show the card
+                    } else {
+                        card.style.display = 'none'; // Hide the card
+                    }
+                });
+            });
+        });
+
+        // Initialize with 'All' filter active
+        document.querySelector('.skill-button[data-filter="all"]').click();
+
+
+        // --- Client-Side Contact Form Validation ---
+        const contactForm = document.getElementById('contactForm');
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const messageInput = document.getElementById('message');
+        const nameError = document.getElementById('nameError');
+        const emailError = document.getElementById('emailError');
+        const messageError = document.getElementById('messageError');
+        const formSuccess = document.getElementById('formSuccess');
+
+        // Function to validate an input field
+        function validateInput(inputElement, errorElement, errorMessage) {
+            if (inputElement.value.trim() === '') {
+                inputElement.classList.add('input-error');
+                errorElement.textContent = errorMessage;
+                errorElement.classList.remove('hidden');
+                return false;
+            } else {
+                inputElement.classList.remove('input-error');
+                errorElement.classList.add('hidden');
+                return true;
+            }
+        }
+
+        // Specific email validation
+        function validateEmail(inputElement, errorElement) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(inputElement.value.trim())) {
+                inputElement.classList.add('input-error');
+                errorElement.textContent = 'Please enter a valid email address.';
+                errorElement.classList.remove('hidden');
+                return false;
+            } else {
+                inputElement.classList.remove('input-error');
+                errorElement.classList.add('hidden');
+                return true;
+            }
+        }
+
+        // Add real-time validation on input blur
+        nameInput.addEventListener('blur', () => validateInput(nameInput, nameError, 'Name is required.'));
+        emailInput.addEventListener('blur', () => validateEmail(emailInput, emailError));
+        messageInput.addEventListener('blur', () => validateInput(messageInput, messageError, 'Message cannot be empty.'));
+
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // Prevent default form submission
+
+            // Validate all fields on submit
+            const isNameValid = validateInput(nameInput, nameError, 'Name is required.');
+            const isEmailValid = validateEmail(emailInput, emailError);
+            const isMessageValid = validateInput(messageInput, messageError, 'Message cannot be empty.');
+
+            if (isNameValid && isEmailValid && isMessageValid) {
+                // If all valid, simulate form submission success
+                console.log('Form submitted successfully!');
+                console.log('Name:', nameInput.value);
+                console.log('Email:', emailInput.value);
+                console.log('Message:', messageInput.value);
+
+                formSuccess.classList.remove('hidden'); // Show success message
+                contactForm.reset(); // Clear the form
+                // Hide success message after a few seconds
+                setTimeout(() => {
+                    formSuccess.classList.add('hidden');
+                }, 5000);
+            } else {
+                console.log('Form validation failed.');
+            }
+        });
+    </script>
+</body>
+</html>
