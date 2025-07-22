@@ -126,7 +126,11 @@
             <div class="md:w-2/3 text-center md:text-left">
                 <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">About Me</h2>
                 <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                <% if @resume.present? && @resume.summery.present? %>
+                    <%= @resume.summery %>
+                <% else %>
                     I am a Ruby on Rails Developer with over 7+ years of experience in building innovative web applications. Proficient in the full Software Development Life Cycle and skilled in various technologies including AWS, Git, and relational databases. I excel in optimizing system performance and mentoring teams to achieve their goals. I am passionate about problem-solving and delivering scalable solutions.
+                <% end %>
                 </p>
             </div>
         </div>
