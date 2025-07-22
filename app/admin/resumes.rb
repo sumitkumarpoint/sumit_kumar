@@ -7,6 +7,28 @@ ActiveAdmin.register Resume do
   # permit_params :first_name, :last_name, :phone_number, :email, :summery
   #
   # or
+  form do |f|
+    f.inputs "Details" do
+      f.input :first_name
+      f.input :last_name
+      f.input :phone_number
+      f.input :email
+      f.input :summery
+      f.input :current
+
+      # Always show file input for uploading image
+      f.input :image, as: :file
+
+      # Show preview only if image is attached
+      if f.object.image.attached?
+        div do
+          image_tag url_for(f.object.image), style: 'max-width: 200px;'
+        end
+      end
+    end
+
+    f.actions
+  end
 
 
   permit_params do
