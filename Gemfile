@@ -71,3 +71,4 @@ gem "sassc-rails", "~> 2.1"
 gem "faraday", "~> 2.9"
 gem "faraday-multipart"
 gem "dotenv-rails"
+gem 'rufus-scheduler'
