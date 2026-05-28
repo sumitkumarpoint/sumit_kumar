@@ -10,5 +10,6 @@ fi
 # if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
 #   ./bin/rails db:prepare
 # fi
-
+#!/bin/bash -e
+rm -f /rails/tmp/pids/server.pid
 exec "${@}"
