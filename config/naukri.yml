@@ -1,0 +1,37 @@
+default: &default
+  email: <%= ENV['NAUKRI_EMAIL'] %>
+  password: <%= ENV['NAUKRI_PASSWORD'] %>
+  resume_path: <%= ENV['NAUKRI_RESUME_PATH'] %>
+
+  # Naukri API endpoints
+  base_url: "https://www.naukri.com"
+  login_url: "https://www.naukri.com/central-login-services/v1/login"
+  upload_url: "https://www.naukri.com/profile-services/v1/user/resume"
+  profile_url: "https://www.naukri.com/mnjuser/profile"
+
+  # API identifiers
+  app_id: "109"
+  system_id: "109"
+
+  # Upload settings
+  max_file_size_mb: 2
+  allowed_extensions:
+    - .pdf
+    - .doc
+    - .docx
+
+  # Retry settings
+  max_retries: 3
+  retry_delay_seconds: 5
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+  email: "test@example.com"
+  password: "test_password"
+  resume_path: "spec/fixtures/test_resume.pdf"
+
+production:
+  <<: *default

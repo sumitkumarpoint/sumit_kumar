@@ -4,4 +4,10 @@ class AdminUser < ApplicationRecord
   devise :database_authenticatable, 
          :recoverable, :rememberable, :validatable
   include Ransackable
+
+after_create :something
+after_update :something
+def something
+ puts "Hi"
+end
 end

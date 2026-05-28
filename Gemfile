@@ -66,3 +66,7 @@ gem "rubocop"
 gem "devise"
 gem "activeadmin"
 gem "sassc-rails", "~> 2.1"
+# HTTP
+gem "faraday", "~> 2.9"
+gem "faraday-multipart"
+gem "dotenv-rails"
