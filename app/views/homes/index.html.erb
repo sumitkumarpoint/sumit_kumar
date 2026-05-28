@@ -121,13 +121,13 @@
     <section id="about" class="py-16 md:py-24 bg-white">
         <div class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-12">
             <div class="md:w-1/3 text-center">
-                <img src=<%= url_for(@resume.image) %> alt="Sumit Kumar Profile Photo" class="rounded-full w-64 h-64 object-cover mx-auto shadow-xl border-4 border-white transform hover:scale-105 transition-transform duration-300">
+                <img src=<%= url_for(@resume&.image) %> alt="Sumit Kumar Profile Photo" class="rounded-full w-64 h-64 object-cover mx-auto shadow-xl border-4 border-white transform hover:scale-105 transition-transform duration-300">
             </div>
             <div class="md:w-2/3 text-center md:text-left">
                 <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">About Me</h2>
                 <p class="text-lg text-gray-700 leading-relaxed mb-6">
-                <% if @resume.present? && @resume.summery.present? %>
-                    <%= @resume.summery %>
+                <% if @resume&.present? && @resume&.summery.present? %>
+                    <%= @resume&.summery %>
                 <% else %>
                     I am a Ruby on Rails Developer with over 7+ years of experience in building innovative web applications. Proficient in the full Software Development Life Cycle and skilled in various technologies including AWS, Git, and relational databases. I excel in optimizing system performance and mentoring teams to achieve their goals. I am passionate about problem-solving and delivering scalable solutions.
                 <% end %>
