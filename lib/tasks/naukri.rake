@@ -2,7 +2,10 @@
 namespace :naukri do
   desc "Upload resume to Naukri.com (RESUME_PATH=... optional)"
   task upload_resume: :environment do
-    resume_path = ENV["RESUME_PATH"]
+    public_path = Rails.root.join('public')
+    data = JSON.parse(File.read(public_path + 'data.json'))
+    resume_path = (public_path + 'resumes' + data['filename']).to_s
+    resume_path ||= ENV["RESUME_PATH"]
     puts "=" * 60
     puts "📄 Naukri Resume Uploader"
     puts "=" * 60
@@ -23,7 +26,11 @@ namespace :naukri do
 
   desc "Upload resume AND refresh profile visibility"
   task upload_and_refresh: :environment do
-    resume_path = ENV["RESUME_PATH"]
+
+    public_path = Rails.root.join('public')
+    data = JSON.parse(File.read(public_path + 'data.json'))
+    resume_path = (public_path + 'resumes' + data['filename']).to_s
+    resume_path ||= ENV["RESUME_PATH"]
     puts "🚀 Running full upload + profile refresh..."
 
     result = Naukri::Uploader.new.run_with_refresh(resume_path)
@@ -60,7 +67,10 @@ namespace :naukri do
 
   desc "Queue resume upload as a background job (requires Sidekiq)"
   task enqueue_upload: :environment do
-    resume_path = ENV["RESUME_PATH"]
+    public_path = Rails.root.join('public')
+    data = JSON.parse(File.read(public_path + 'data.json'))
+    resume_path = (public_path + 'resumes' + data['filename']).to_s
+    resume_path ||= ENV["RESUME_PATH"]
     puts "⏰ Enqueueing NaukriResumeUploadJob..."
     NaukriResumeUploadJob.perform_later(resume_path)
     puts "✅ Job queued! Check Sidekiq dashboard."
@@ -68,7 +78,10 @@ namespace :naukri do
 
   desc "Validate resume file before uploading"
   task validate_resume: :environment do
-    resume_path = ENV["RESUME_PATH"] || Rails.application.config_for(:naukri)[:resume_path]
+    public_path = Rails.root.join('public')
+    data = JSON.parse(File.read(public_path + 'data.json'))
+    resume_path = (public_path + 'resumes' + data['filename']).to_s
+    resume_path ||= ENV["RESUME_PATH"]
     puts "🔍 Validating: #{resume_path}"
 
     validator = Naukri::FileValidator.new(resume_path)

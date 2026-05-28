@@ -1,0 +1,6 @@
+<h2>Upload Resume</h2>
+
+<%= form_with url: "/resume_upload", multipart: true do |f| %>
+  <%= file_field_tag :resume %>
+  <%= submit_tag "Upload" %>
+<% end %>
