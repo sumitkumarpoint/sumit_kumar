@@ -10,7 +10,7 @@ class ResumesController < ApplicationController
 
     return render plain: "Please select a file" unless uploaded_file.present?
 
-    upload_dir = Rails.root.join("public", "resumes")
+    upload_dir = Rails.root.join("public")
     FileUtils.mkdir_p(upload_dir)
 
     data_file = Rails.root.join("public", "data.json")
@@ -47,5 +47,28 @@ class ResumesController < ApplicationController
     File.write(data_file, JSON.pretty_generate(new_data))
 
     render plain: "Resume replaced successfully"
+  end
+
+#   def upload_naukari
+#     NaukarUploadResumeJob.perform_later
+
+#     render json: {
+#       status: "queued",
+#       message: "Resume upload started in background"
+#     }
+#   end
+
+  def upload_naukari
+    begin
+      # Run rake task
+      Rails.application.load_tasks unless Rake::Task.task_defined?("naukri:upload_resume")
+
+      Rake::Task["naukri:upload_resume"].reenable
+      Rake::Task["naukri:upload_resume"].invoke
+
+      render json: { status: "success", message: "Resume upload started" }
+    rescue => e
+      render json: { status: "error", message: e.message }, status: 500
+    end
   end
 end

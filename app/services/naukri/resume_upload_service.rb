@@ -21,27 +21,78 @@ module Naukri
       end
     end
   
+    # def finalize_resume(form_key, file_key)
+    #   @logger.info "[Naukri::ResumeUploadService] Step 2: Finalizing resume..."
+    #   # profile_id = @auth.profile_id
+    #   profile_id = 'e25690abd4ff780186e479bc1d962da39cd0e1d2a543958d7e048c3bd0bbd3be'
+    #   return Result.failure("Profile ID not available") if profile_id.blank?
+
+    #   finalize_url = "https://www.naukri.com/cloudgateway-mynaukri/resman-aggregator-services/v0/users/self/profiles/#{profile_id}/advResume"
+
+    #   response = connection.post(finalize_url) do |req|
+    #     req.headers.merge!(@auth.auth_headers)
+    #     req.headers["appid"]                    = "105"
+    #     req.headers["systemid"]                 = "105"
+    #     req.headers["x-http-method-override"]   = "PUT"
+    #     req.headers["x-requested-with"]         = "XMLHttpRequest"
+    #     req.headers["Content-Type"]             = "application/json"
+
+    #     req.body = {textCV: {formKey: form_key, fileKey: file_key, textCvContent: nil}}.to_json
+    #     # req.body = { resumePath: file_path }.to_json
+    #   end
+
+    #   @logger.info "[Finalize Response] Status: #{response.status}"
+
+    #   if response.success?
+    #     @logger.info "[Naukri::ResumeUploadService] ✅ Resume finalized!"
+    #     Result.success(
+    #       message:     "Resume uploaded successfully",
+    #       # file_path:   file_path,
+    #       uploaded_at: Time.current.iso8601
+    #     )
+    #   else
+    #     @logger.error "[Naukri::ResumeUploadService] ❌ Finalize failed [#{response.status}]"
+    #     Result.failure("Resume finalization failed: #{response.body}")
+    #   end
+    # rescue StandardError => e
+    #   @logger.error "[Naukri::ResumeUploadService] Finalize error: #{e.message}"
+    #   Result.failure("Finalize error: #{e.message}")
+    # end
+
     def finalize_resume(form_key, file_key)
       @logger.info "[Naukri::ResumeUploadService] Step 2: Finalizing resume..."
-      # profile_id = @auth.profile_id
+
       profile_id = 'e25690abd4ff780186e479bc1d962da39cd0e1d2a543958d7e048c3bd0bbd3be'
       return Result.failure("Profile ID not available") if profile_id.blank?
 
       finalize_url = "https://www.naukri.com/cloudgateway-mynaukri/resman-aggregator-services/v0/users/self/profiles/#{profile_id}/advResume"
 
       response = connection.post(finalize_url) do |req|
+        # Merge auth headers
         req.headers.merge!(@auth.auth_headers)
+        
+        # Explicitly set required headers
         req.headers["appid"]                    = "105"
         req.headers["systemid"]                 = "105"
         req.headers["x-http-method-override"]   = "PUT"
         req.headers["x-requested-with"]         = "XMLHttpRequest"
         req.headers["Content-Type"]             = "application/json"
+        
+        # Ensure Authorization header is present
+        req.headers["Authorization"] ||= "Bearer #{@auth.token}"
+        
+        # Explicitly set Cookie header with all cookies
+        cookie_string = @auth.cookies.map { |k, v| "#{k}=#{v}" }.join("; ")
+        req.headers["Cookie"] = cookie_string
+        
+        @logger.info "[Finalize Headers] Auth: #{req.headers['Authorization']&.first(50)}..."
+        @logger.info "[Finalize Headers] Cookies: #{cookie_string&.first(100)}..."
 
         req.body = {textCV: {formKey: form_key, fileKey: file_key, textCvContent: nil}}.to_json
-        # req.body = { resumePath: file_path }.to_json
       end
 
       @logger.info "[Finalize Response] Status: #{response.status}"
+      @logger.info "[Finalize Response] Body: #{response.body}"  # Log full response
 
       if response.success?
         @logger.info "[Naukri::ResumeUploadService] ✅ Resume finalized!"
@@ -52,10 +103,11 @@ module Naukri
         )
       else
         @logger.error "[Naukri::ResumeUploadService] ❌ Finalize failed [#{response.status}]"
-        Result.failure("Resume finalization failed: #{response.body}")
+        @logger.error "[Naukri::ResumeUploadService] Response: #{response.body}"
+        Result.failure("Resume finalization failed [#{response.status}]: #{response.body}")
       end
     rescue StandardError => e
-      @logger.error "[Naukri::ResumeUploadService] Finalize error: #{e.message}"
+      @logger.error "[Naukri::ResumeUploadService] Error: #{e.message}"
       Result.failure("Finalize error: #{e.message}")
     end
 

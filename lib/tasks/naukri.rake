@@ -4,7 +4,7 @@ namespace :naukri do
   task upload_resume: :environment do
     public_path = Rails.root.join('public')
     data = JSON.parse(File.read(public_path + 'data.json'))
-    resume_path = (public_path + 'resumes' + data['filename']).to_s
+    resume_path = (public_path + data['filename']).to_s
     resume_path ||= ENV["RESUME_PATH"]
     puts "=" * 60
     puts "📄 Naukri Resume Uploader"
@@ -24,12 +24,49 @@ namespace :naukri do
     end
   end
 
+  desc "Extract auth token and cookies for Render"
+  task extract_auth: :environment do
+    puts "🔑 Extracting auth credentials..."
+    
+    auth = Naukri::AuthService.new
+    result = auth.login
+    
+    if result.success?
+      token = auth.token
+      cookies = auth.cookies
+      
+      # Format cookies string
+      cookie_string = cookies.map { |k, v| "#{k}=#{v}" }.join("; ")
+      
+      puts "\n✅ Authentication successful!"
+      puts "\n" + "="*60
+      puts "Add to Render environment variables:"
+      puts "="*60
+      puts "\nNAUKRI_AUTH_TOKEN=#{token}\n\n"
+      puts "NAUKRI_AUTH_COOKIES=#{cookie_string}\n\n"
+      puts "NAUKRI_USE_STORED_AUTH=true\n"
+      puts "="*60
+      
+      # Also save to .env.render for reference
+      File.write(".env.render", <<~ENV)
+        NAUKRI_AUTH_TOKEN=#{token}
+        NAUKRI_AUTH_COOKIES=#{cookie_string}
+        NAUKRI_USE_STORED_AUTH=true
+      ENV
+      
+      puts "\n✅ Saved to .env.render for reference"
+    else
+      puts "❌ Login failed: #{result.error}"
+      exit 1
+    end
+  end
+
   desc "Upload resume AND refresh profile visibility"
   task upload_and_refresh: :environment do
 
     public_path = Rails.root.join('public')
     data = JSON.parse(File.read(public_path + 'data.json'))
-    resume_path = (public_path + 'resumes' + data['filename']).to_s
+    resume_path = (public_path + data['filename']).to_s
     resume_path ||= ENV["RESUME_PATH"]
     puts "🚀 Running full upload + profile refresh..."
 
@@ -69,7 +106,7 @@ namespace :naukri do
   task enqueue_upload: :environment do
     public_path = Rails.root.join('public')
     data = JSON.parse(File.read(public_path + 'data.json'))
-    resume_path = (public_path + 'resumes' + data['filename']).to_s
+    resume_path = (public_path + data['filename']).to_s
     resume_path ||= ENV["RESUME_PATH"]
     puts "⏰ Enqueueing NaukriResumeUploadJob..."
     NaukriResumeUploadJob.perform_later(resume_path)
@@ -80,7 +117,7 @@ namespace :naukri do
   task validate_resume: :environment do
     public_path = Rails.root.join('public')
     data = JSON.parse(File.read(public_path + 'data.json'))
-    resume_path = (public_path + 'resumes' + data['filename']).to_s
+    resume_path = (public_path + data['filename']).to_s
     resume_path ||= ENV["RESUME_PATH"]
     puts "🔍 Validating: #{resume_path}"
 
