@@ -44,32 +44,132 @@ module Naukri
     #   @logger.error "[Naukri::AuthService] Request timed out"
     #   Result.failure("Request timed out")
     # end
-    def login(mfa_code = nil)
-      # Use stored auth for Render/external environments
-      if ENV["NAUKRI_USE_STORED_AUTH"] == "true" || Rails.application.credentials.naukri_use_store_auth.to_s =="true"
-        @logger.info "[Naukri::AuthService] Using stored auth token from Render"
-        @token = ENV["NAUKRI_AUTH_TOKEN"] || Rails.application.credentials.naukri_auth_token
+    # def login(mfa_code = nil)
+    #   # Use stored auth for Render/external environments
+    #   if ENV["NAUKRI_USE_STORED_AUTH"] == "true" || Rails.application.credentials.naukri_use_store_auth.to_s =="true"
+    #     @logger.info "[Naukri::AuthService] Using stored auth token from Render"
+    #     @token = ENV["NAUKRI_AUTH_TOKEN"] || Rails.application.credentials.naukri_auth_token
 
-        # Parse cookies from stored string
-        cookie_string = ENV["NAUKRI_AUTH_COOKIES"].to_s || Rails.application.credentials.naukri_auth_cookies
+    #     # Parse cookies from stored string
+    #     cookie_string = ENV["NAUKRI_AUTH_COOKIES"].to_s || Rails.application.credentials.naukri_auth_cookies
+    #     @cookies = cookie_string.split("; ").each_with_object({}) do |cookie, hash|
+    #       key, value = cookie.split("=", 2)
+    #       hash[key.strip] = value if key.present? && value.present?
+    #     end
+
+    #     @logger.info "[Naukri::AuthService] ✅ Using stored credentials"
+    #     return Result.success(user_info: {}, token: @token)
+    #   end
+
+    #   @logger.info "[Naukri::AuthService] Attempting login for #{CONFIG[:email]}"
+    #   validate_credentials!
+
+    #   if mfa_code.present? && @mfa_flow_id.present?
+    #     verify_mfa(mfa_code)
+    #   else
+    #     perform_login
+    #   end
+    # end
+
+    def login(otp_code = nil)
+      # Use stored auth if available
+      if Rails.application.credentials.naukri_use_store_auth.to_s =="true"
+        @logger.info "[Naukri::AuthService] Using stored auth token"
+        @token = Rails.application.credentials.naukri_auth_token
+        
+        # if token_expired?(@token)
+        #   @logger.warn "[Naukri::AuthService] ⚠️  Token expired"
+        #   return Result.failure("Token expired. Run 'rails extract_auth' locally.")
+        # end
+        
+        cookie_string = Rails.application.credentials.naukri_auth_cookies
         @cookies = cookie_string.split("; ").each_with_object({}) do |cookie, hash|
           key, value = cookie.split("=", 2)
           hash[key.strip] = value if key.present? && value.present?
         end
-
-        @logger.info "[Naukri::AuthService] ✅ Using stored credentials"
+        
         return Result.success(user_info: {}, token: @token)
       end
 
-      @logger.info "[Naukri::AuthService] Attempting login for #{CONFIG[:email]}"
+      @logger.info "[Naukri::AuthService] Attempting login"
       validate_credentials!
 
-      if mfa_code.present? && @mfa_flow_id.present?
-        verify_mfa(mfa_code)
+      # If OTP provided, verify it
+      if otp_code.present? && @mfa_flow_id.present?
+        return verify_otp(otp_code)
+      end
+
+      # Initial login attempt
+      perform_login
+    end
+
+    def perform_login
+      response = connection.post(CONFIG[:login_url]) do |req|
+        req.headers.merge!(BASE_HEADERS)
+        req.body = login_payload.to_json
+      end
+
+      handle_login_response(response)
+    rescue Faraday::Error => e
+      @logger.error "[Naukri::AuthService] Connection error: #{e.message}"
+      Result.failure("Connection failed: #{e.message}")
+    end
+
+    def handle_login_response(response)
+      body = parse_body(response.body)
+
+      # Check if MFA is required
+      if response.status == 403 && body["message"]&.include?("MFA")
+        @logger.warn "[Naukri::AuthService] ⚠️  MFA required"
+        @mfa_flow_id = body.dig("data", "flowId")
+        email = body.dig("data", "email")
+        
+        return Result.failure(
+          "MFA Required: OTP sent to #{email}. Use: rails naukri:login OTP=123456",
+          { requires_mfa: true, flow_id: @mfa_flow_id, email: email }
+        )
+      end
+
+      if response.success?
+        extract_auth_data(response, body)
+        @logger.info "[Naukri::AuthService] ✅ Login successful"
+        Result.success(user_info: @user_info, token: @token)
       else
-        perform_login
+        @logger.error "[Naukri::AuthService] ❌ Login failed [#{response.status}]"
+        Result.failure("Login failed: #{response.body}")
       end
     end
+
+    # Verify OTP/MFA code
+    def verify_otp(otp_code)
+      @logger.info "[Naukri::AuthService] Verifying OTP..."
+
+      response = connection.post(CONFIG[:login_url]) do |req|
+        req.headers.merge!(BASE_HEADERS)
+        req.body = {
+          username: CONFIG[:email],
+          password: CONFIG[:password],
+          isEncoded: false,
+          flowId: @mfa_flow_id,
+          otp: otp_code
+        }.to_json
+      end
+
+      body = parse_body(response.body)
+
+      if response.success?
+        extract_auth_data(response, body)
+        @logger.info "[Naukri::AuthService] ✅ OTP verified, login successful"
+        Result.success(user_info: @user_info, token: @token)
+      else
+        @logger.error "[Naukri::AuthService] ❌ OTP verification failed [#{response.status}]"
+        Result.failure("OTP verification failed: #{response.body}")
+      end
+    rescue Faraday::Error => e
+      @logger.error "[Naukri::AuthService] OTP error: #{e.message}"
+      Result.failure("OTP error: #{e.message}")
+    end
+
 
     def logged_in?
       @token.present? || @cookies.any?
@@ -179,30 +279,30 @@ module Naukri
       raise ArgumentError, "NAUKRI_PASSWORD is not set" if Rails.application.credentials.naukri_password.blank?
     end
     
-    def handle_login_response(response)
-      body = parse_body(response.body)
+    # def handle_login_response(response)
+    #   body = parse_body(response.body)
 
-      # Check if MFA is required
-      if response.status == 403 && body["message"]&.include?("MFA")
-        @logger.warn "[Naukri::AuthService] ⚠️  MFA required"
-        @mfa_flow_id = body.dig("data", "flowId")
-        email = body.dig("data", "email")
+    #   # Check if MFA is required
+    #   if response.status == 403 && body["message"]&.include?("MFA")
+    #     @logger.warn "[Naukri::AuthService] ⚠️  MFA required"
+    #     @mfa_flow_id = body.dig("data", "flowId")
+    #     email = body.dig("data", "email")
         
-        return Result.failure(
-          "MFA Required: Verification code sent to #{email}. Run: rails naukri:verify_mfa CODE=123456",
-          { requires_mfa: true, flow_id: @mfa_flow_id, email: email }
-        )
-      end
+    #     return Result.failure(
+    #       "MFA Required: Verification code sent to #{email}. Run: rails naukri:verify_mfa CODE=123456",
+    #       { requires_mfa: true, flow_id: @mfa_flow_id, email: email }
+    #     )
+    #   end
 
-      if response.success?
-        extract_auth_data(response, body)
-        @logger.info "[Naukri::AuthService] ✅ Login successful"
-        Result.success(user_info: @user_info, token: @token)
-      else
-        @logger.error "[Naukri::AuthService] ❌ Login failed [#{response.status}]: #{response.body}"
-        Result.failure("Login failed: #{response.body}")
-      end
-    end
+    #   if response.success?
+    #     extract_auth_data(response, body)
+    #     @logger.info "[Naukri::AuthService] ✅ Login successful"
+    #     Result.success(user_info: @user_info, token: @token)
+    #   else
+    #     @logger.error "[Naukri::AuthService] ❌ Login failed [#{response.status}]: #{response.body}"
+    #     Result.failure("Login failed: #{response.body}")
+    #   end
+    # end
 
     def verify_mfa(mfa_code)
       @logger.info "[Naukri::AuthService] Verifying MFA code..."
@@ -228,17 +328,17 @@ module Naukri
       end
     end
 
-    def perform_login
-      response = connection.post(CONFIG[:login_url]) do |req|
-        req.headers.merge!(BASE_HEADERS)
-        req.body = login_payload.to_json
-      end
+    # def perform_login
+    #   response = connection.post(CONFIG[:login_url]) do |req|
+    #     req.headers.merge!(BASE_HEADERS)
+    #     req.body = login_payload.to_json
+    #   end
 
-      handle_login_response(response)
-    rescue Faraday::Error => e
-      @logger.error "[Naukri::AuthService] Connection error: #{e.message}"
-      Result.failure("Connection failed: #{e.message}")
-    end
+    #   handle_login_response(response)
+    # rescue Faraday::Error => e
+    #   @logger.error "[Naukri::AuthService] Connection error: #{e.message}"
+    #   Result.failure("Connection failed: #{e.message}")
+    # end
 
     def connection
       @connection ||= Faraday.new do |f|

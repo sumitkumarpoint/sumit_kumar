@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "/resume/upload_naukari", to: "resumes#upload_naukari"
+  get "/resume/login", to: "resumes#login"
   # Defines the root path route ("/")
   # root "posts#index"
 end

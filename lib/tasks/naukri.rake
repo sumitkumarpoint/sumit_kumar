@@ -24,6 +24,61 @@ namespace :naukri do
     end
   end
 
+  desc "Login with OTP verification  |  OTP=123456"
+  task login: :environment do
+    otp = ENV["OTP"]
+    
+    puts "="*60
+    puts "🔐 Naukri Login with OTP Verification"
+    puts "="*60
+    
+    unless otp.present?
+      puts "\n⚠️  First attempt (will request OTP via email):\n"
+      puts "Step 1: Run this to get OTP\n"
+      puts "  rails naukri:login\n"
+      puts "\nStep 2: Check your email for OTP\n"
+      puts "Step 3: Run with OTP\n"
+      puts "  rails naukri:login OTP=123456\n\n"
+      
+      auth = Naukri::AuthService.new
+      result = auth.login
+      
+      if result.failure? && result.data[:requires_mfa]
+        puts "✅ OTP sent to: #{result.data[:email]}"
+        puts "\n📧 Check your email and run:\n"
+        puts "   rails naukri:login OTP=123456\n"
+      else
+        puts "❌ Error: #{result.error}"
+        exit 1
+      end
+    else
+      # OTP provided - verify it
+      puts "\n🔓 Verifying OTP: #{otp}\n"
+      
+      auth = Naukri::AuthService.new
+      auth.instance_variable_set(:@mfa_flow_id, "mfa-login-email")  # Set from first attempt
+      result = auth.login(otp)
+      
+      if result.success?
+        token = auth.token
+        cookies = auth.cookies
+        cookie_string = cookies.map { |k, v| "#{k}=#{v}" }.join("; ")
+        
+        puts "✅ Login successful!\n\n"
+        puts "="*70
+        puts "Add to Render environment variables:"
+        puts "="*70
+        puts "\nNAUKRI_AUTH_TOKEN=#{token}\n\n"
+        puts "NAUKRI_AUTH_COOKIES=#{cookie_string}\n\n"
+        puts "NAUKRI_USE_STORED_AUTH=true\n"
+        puts "="*70
+      else
+        puts "❌ OTP verification failed: #{result.error}"
+        exit 1
+      end
+    end
+  end
+
   desc "Extract auth token and cookies for Render"
   task extract_auth: :environment do
     puts "🔑 Extracting auth credentials..."

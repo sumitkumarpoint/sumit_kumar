@@ -58,6 +58,15 @@ class ResumesController < ApplicationController
 #     }
 #   end
 
+  def login
+    res = if params['otp'].present?
+      Naukri::AuthService.new.login(params['otp'])
+    else
+      Naukri::AuthService.new.login
+    end
+    render json: JSON.parse(res.to_json), status: :ok
+  end
+
   def upload_naukari
     begin
       # Run rake task
