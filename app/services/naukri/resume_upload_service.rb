@@ -91,6 +91,43 @@ module Naukri
         req.body = {textCV: {formKey: form_key, fileKey: file_key, textCvContent: nil}}.to_json
       end
 
+      # profile_id = 'e25690abd4ff780186e479bc1d962da39cd0e1d2a543958d7e048c3bd0bbd3be'
+
+      # finalize_url = "https://www.naukri.com/cloudgateway-mynaukri/resman-aggregator-services/v0/users/self/profiles/#{profile_id}/advResume"
+
+      # headers = @auth.auth_headers.merge(
+      #   "appid" => "105",
+      #   "systemid" => "105",
+      #   "x-http-method-override" => "PUT",
+      #   "x-requested-with" => "XMLHttpRequest",
+      #   "Content-Type" => "application/json"
+      # )
+
+      # headers["Authorization"] ||= "Bearer #{@auth.token}"
+
+      # cookie_string = @auth.cookies.map { |k, v| "#{k}=#{v}" }.join("; ")
+      # headers["Cookie"] = cookie_string
+
+      # body = {
+      #   textCV: {
+      #     formKey: form_key,
+      #     fileKey: file_key,
+      #     textCvContent: nil
+      #   }
+      # }.to_json
+
+      # curl = +"curl -X POST '#{finalize_url}'"
+
+      # headers.each do |key, value|
+      #   curl << " \\\n  -H '#{key}: #{value}'"
+      # end
+
+      # curl << " \\\n  --data-raw '#{body}'"
+
+      # puts "\n========== CURL =========="
+      # puts curl
+      # puts "==========================\n"
+
       @logger.info "[Finalize Response] Status: #{response.status}"
       @logger.info "[Finalize Response] Body: #{response.body}"  # Log full response
 
@@ -111,16 +148,57 @@ module Naukri
       Result.failure("Finalize error: #{e.message}")
     end
 
+      def delete_existing_resume
+        @logger.info "[Naukri::ResumeUploadService] Deleting existing resume..."
+
+        profile_id = 'e25690abd4ff780186e479bc1d962da39cd0e1d2a543958d7e048c3bd0bbd3be'
+        return Result.failure("Profile ID not available") if profile_id.blank?
+
+        delete_url = "https://www.naukri.com/cloudgateway-mynaukri/resman-aggregator-services/v0/users/self/profiles/#{profile_id}/deleteResume"
+
+        response = connection.post(delete_url) do |req|
+          req.headers.merge!(@auth.auth_headers)
+          req.headers["appid"] = "105"
+          req.headers["systemid"] = "105"
+          req.headers["x-requested-with"] = "XMLHttpRequest"
+          req.headers["x-http-method-override"] = "DELETE"
+          req.headers["Content-Type"] = "application/json"
+          req.body = ""
+        end
+
+
+        @logger.info "[Delete Response] Status: #{response.status}"
+
+        if response.success? || response.status == 404  # 404 means no resume to delete
+          @logger.info "[Naukri::ResumeUploadService] ✅ Delete successful"
+          Result.success(message: "Resume deleted")
+        else
+          @logger.error "[Naukri::ResumeUploadService] ❌ Delete failed [#{response.status}]: #{response.body}"
+          Result.failure("Delete failed: #{response.body}")
+        end
+      rescue StandardError => e
+        @logger.error "[Naukri::ResumeUploadService] Error: #{e.message}"
+        Result.failure("Delete error: #{e.message}")
+      end
+
 
     def upload(resume_path = nil)
-      resume_path ||= CONFIG[:resume_path]
+      resume_path = '/home/sumit/ruby/sumit_kumar/public/Sumit-Kumar-Senior-Rails-Developer-Resume.pdf'
+      # resume_path ||= CONFIG[:resume_path]
       @logger.info "[Naukri::ResumeUploadService] Starting upload: #{resume_path}"
 
       return Result.failure("Not authenticated") unless @auth.logged_in?
 
       validator = FileValidator.new(resume_path)
       return Result.failure(validator.errors.join(", ")) unless validator.valid?
-
+      # Delete existing resume first
+      delete_result = delete_existing_resume
+      if delete_result.failure?
+        @logger.warn "[Naukri::ResumeUploadService] Delete failed: #{delete_result.error}"
+        # Continue anyway - resume might not exist
+      else
+        @logger.info "[Naukri::ResumeUploadService] ✅ Existing resume deleted"
+      end
       # Step 1: Upload file
       upload_result = upload_file(resume_path)
       return upload_result if upload_result.failure?

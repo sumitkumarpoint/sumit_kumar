@@ -2,9 +2,9 @@
 namespace :naukri do
   desc "Upload resume to Naukri.com (RESUME_PATH=... optional)"
   task upload_resume: :environment do
-    public_path = Rails.root.join('public')
-    data = JSON.parse(File.read(public_path + 'data.json'))
-    resume_path = (public_path + data['filename']).to_s
+    public_path = Rails.root.join('public', 'resumes')
+    data = JSON.parse(File.read(public_path + 'data.json')) rescue {}
+    resume_path = (public_path + data['filename']).to_s if data.length.positive?
     resume_path ||= ENV["RESUME_PATH"]
     puts "=" * 60
     puts "📄 Naukri Resume Uploader"
@@ -62,6 +62,7 @@ namespace :naukri do
       if result.success?
         token = auth.token
         cookies = auth.cookies
+        
         cookie_string = cookies.map { |k, v| "#{k}=#{v}" }.join("; ")
         
         puts "✅ Login successful!\n\n"
@@ -78,6 +79,57 @@ namespace :naukri do
       end
     end
   end
+
+  desc "Delete existing resume"
+  task delete_resume: :environment do
+    puts "="*60
+    puts "🗑️  Naukri Resume Delete"
+    puts "="*60
+
+    auth         = Naukri::AuthService.new
+    login_result = auth.login
+
+    unless login_result.success?
+      puts "❌ Login failed: #{login_result.error}"
+      exit 1
+    end
+
+    uploader = Naukri::Uploader.new
+    uploader.instance_variable_set(:@auth, auth)
+    
+    service = Naukri::ResumeUploadService.new(auth)
+    result = service.send(:delete_existing_resume)
+
+    if result.success?
+      puts "✅ Resume deleted successfully!"
+    else
+      puts "❌ Delete failed: #{result.error}"
+      exit 1
+    end
+  end
+
+  desc "Delete then upload resume"
+  task delete_and_upload_resume: :environment do
+    resume_path = ENV["RESUME_PATH"]
+
+    puts "="*60
+    puts "🔄 Naukri Resume Delete & Upload"
+    puts "="*60
+    puts "  Resume : #{resume_path || 'Using config default'}"
+    puts "  Time   : #{Time.current}"
+    puts "="*60
+
+    result = Naukri::Uploader.new.run(resume_path)
+
+    if result.success?
+      puts "\n✅ SUCCESS: Resume deleted and uploaded!"
+      puts "   Uploaded at: #{result.data[:uploaded_at]}"
+    else
+      puts "\n❌ FAILED: #{result.error}"
+      exit 1
+    end
+  end
+
 
   desc "Extract auth token and cookies for Render"
   task extract_auth: :environment do
@@ -119,9 +171,9 @@ namespace :naukri do
   desc "Upload resume AND refresh profile visibility"
   task upload_and_refresh: :environment do
 
-    public_path = Rails.root.join('public')
-    data = JSON.parse(File.read(public_path + 'data.json'))
-    resume_path = (public_path + data['filename']).to_s
+    public_path = Rails.root.join('tmp', 'resumes')
+    data = JSON.parse(File.read(public_path + 'data.json')) rescue {}
+    resume_path = (public_path + data['filename']).to_s if data.length.positive?
     resume_path ||= ENV["RESUME_PATH"]
     puts "🚀 Running full upload + profile refresh..."
 
@@ -159,9 +211,9 @@ namespace :naukri do
 
   desc "Queue resume upload as a background job (requires Sidekiq)"
   task enqueue_upload: :environment do
-    public_path = Rails.root.join('public')
-    data = JSON.parse(File.read(public_path + 'data.json'))
-    resume_path = (public_path + data['filename']).to_s
+    public_path = Rails.root.join('tmp', 'resumes')
+    data = JSON.parse(File.read(public_path + 'data.json')) rescue {}
+    resume_path = (public_path + data['filename']).to_s if data.length.positive?
     resume_path ||= ENV["RESUME_PATH"]
     puts "⏰ Enqueueing NaukriResumeUploadJob..."
     NaukriResumeUploadJob.perform_later(resume_path)
@@ -170,9 +222,9 @@ namespace :naukri do
 
   desc "Validate resume file before uploading"
   task validate_resume: :environment do
-    public_path = Rails.root.join('public')
-    data = JSON.parse(File.read(public_path + 'data.json'))
-    resume_path = (public_path + data['filename']).to_s
+    public_path = Rails.root.join('tmp', 'resumes')
+    data = JSON.parse(File.read(public_path + 'data.json')) rescue {}
+    resume_path = (public_path + data['filename']).to_s if data.length.positive?
     resume_path ||= ENV["RESUME_PATH"]
     puts "🔍 Validating: #{resume_path}"
 

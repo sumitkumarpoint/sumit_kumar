@@ -10,10 +10,10 @@ class ResumesController < ApplicationController
 
     return render plain: "Please select a file" unless uploaded_file.present?
 
-    upload_dir = Rails.root.join("public")
+    upload_dir = Rails.root.join("tmp", "resumes")
     FileUtils.mkdir_p(upload_dir)
 
-    data_file = Rails.root.join("public", "data.json")
+    data_file = Rails.root.join("tmp", "data.json")
 
     # Read existing json
     existing_data =

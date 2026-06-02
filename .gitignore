@@ -13,6 +13,9 @@
 # Ignore all logfiles and tempfiles.
 /log/*
 /tmp/*
+!/tmp/cookie.json
+!/tmp/data.json
+!/tmp/resumes
 !/log/.keep
 !/tmp/.keep
 
