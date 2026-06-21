@@ -3,9 +3,9 @@ namespace :naukri do
   desc "Upload resume to Naukri.com (RESUME_PATH=... optional)"
   task upload_resume: :environment do
     public_path = Rails.root.join('public', 'resumes')
-    data = JSON.parse(File.read(public_path + 'data.json')) rescue {}
+    data = JSON.parse(File.read(Rails.root.join('tmp') + 'data.json')) rescue {}
     resume_path = (public_path + data['filename']).to_s if data.length.positive?
-    resume_path ||= ENV["RESUME_PATH"]
+    resume_path ||= Rails.root.join("public/Sumit-Kumar-Senior-Rails-Developer-Resume.pdf")
     puts "=" * 60
     puts "📄 Naukri Resume Uploader"
     puts "=" * 60
@@ -110,7 +110,7 @@ namespace :naukri do
 
   desc "Delete then upload resume"
   task delete_and_upload_resume: :environment do
-    resume_path = ENV["RESUME_PATH"]
+    resume_path = Rails.root.join("public/Sumit-Kumar-Senior-Rails-Developer-Resume.pdf")
 
     puts "="*60
     puts "🔄 Naukri Resume Delete & Upload"
@@ -172,9 +172,9 @@ namespace :naukri do
   task upload_and_refresh: :environment do
 
     public_path = Rails.root.join('tmp', 'resumes')
-    data = JSON.parse(File.read(public_path + 'data.json')) rescue {}
+    data = JSON.parse(File.read(Rails.root.join('tmp') + 'data.json')) rescue {}
     resume_path = (public_path + data['filename']).to_s if data.length.positive?
-    resume_path ||= ENV["RESUME_PATH"]
+    resume_path ||= Rails.root.join("public/Sumit-Kumar-Senior-Rails-Developer-Resume.pdf")
     puts "🚀 Running full upload + profile refresh..."
 
     result = Naukri::Uploader.new.run_with_refresh(resume_path)
@@ -212,9 +212,9 @@ namespace :naukri do
   desc "Queue resume upload as a background job (requires Sidekiq)"
   task enqueue_upload: :environment do
     public_path = Rails.root.join('tmp', 'resumes')
-    data = JSON.parse(File.read(public_path + 'data.json')) rescue {}
+    data = JSON.parse(File.read(Rails.root.join('tmp') + 'data.json')) rescue {}
     resume_path = (public_path + data['filename']).to_s if data.length.positive?
-    resume_path ||= ENV["RESUME_PATH"]
+    resume_path ||= Rails.root.join("public/Sumit-Kumar-Senior-Rails-Developer-Resume.pdf")
     puts "⏰ Enqueueing NaukriResumeUploadJob..."
     NaukriResumeUploadJob.perform_later(resume_path)
     puts "✅ Job queued! Check Sidekiq dashboard."
@@ -223,9 +223,9 @@ namespace :naukri do
   desc "Validate resume file before uploading"
   task validate_resume: :environment do
     public_path = Rails.root.join('tmp', 'resumes')
-    data = JSON.parse(File.read(public_path + 'data.json')) rescue {}
+    data = JSON.parse(File.read(Rails.root.join('tmp') + 'data.json')) rescue {}
     resume_path = (public_path + data['filename']).to_s if data.length.positive?
-    resume_path ||= ENV["RESUME_PATH"]
+    resume_path ||= Rails.root.join("public/Sumit-Kumar-Senior-Rails-Developer-Resume.pdf")
     puts "🔍 Validating: #{resume_path}"
 
     validator = Naukri::FileValidator.new(resume_path)

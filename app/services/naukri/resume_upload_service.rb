@@ -183,7 +183,7 @@ module Naukri
 
 
     def upload(resume_path = nil)
-      resume_path = '/home/sumit/ruby/sumit_kumar/public/Sumit-Kumar-Senior-Rails-Developer-Resume.pdf'
+      resume_path ||= Rails.root.join('public/Sumit-Kumar-Senior-Rails-Developer-Resume.pdf')
       # resume_path ||= CONFIG[:resume_path]
       @logger.info "[Naukri::ResumeUploadService] Starting upload: #{resume_path}"
 

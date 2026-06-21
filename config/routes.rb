@@ -18,4 +18,10 @@ Rails.application.routes.draw do
   get "/resume/login", to: "resumes#login"
   # Defines the root path route ("/")
   # root "posts#index"
+  get '/naukri/login', to: 'naukri_login#index', as: 'naukri_login_page'
+  post '/naukri/login', to: 'naukri_login#login', as: 'naukri_login'
+  post '/naukri/verify-otp', to: 'naukri_login#verify_otp', as: 'naukri_verify_otp'
+  post '/naukri/logout', to: 'naukri_login#logout', as: 'naukri_logout'
+  get '/naukri/status', to: 'naukri_login#status', as: 'naukri_status'
+  get '/naukri/session-info', to: 'naukri_login#session_info', as: 'naukri_session_info'
 end

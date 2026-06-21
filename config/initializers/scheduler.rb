@@ -10,8 +10,8 @@ scheduler = Rufus::Scheduler.new
 scheduler.every '10m' do
   Rails.logger.info "=== Scheduler started #{Time.current} ==="
 
-  Rake::Task['naukri:upload_resume'].reenable
-  Rake::Task['naukri:upload_resume'].invoke
+  Rake::Task['naukri:refresh_profile'].reenable
+  Rake::Task['naukri:refresh_profile'].invoke
 
   Rails.logger.info "=== Scheduler completed ==="
 end

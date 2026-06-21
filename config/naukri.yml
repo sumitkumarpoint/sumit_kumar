@@ -6,6 +6,8 @@ default: &default
   # Naukri API endpoints
   base_url: "https://www.naukri.com"
   login_url: "https://www.naukri.com/central-login-services/v1/login"
+  otp_url: "https://www.naukri.com/central-login-services/v1/otp"
+  login_otp_url: "https://www.naukri.com/central-login-services/v0/otp-login"
   upload_url: "https://www.naukri.com/profile-services/v1/user/resume"
   profile_url: "https://www.naukri.com/mnjuser/profile"
 

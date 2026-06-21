@@ -1,0 +1,218 @@
+
+    <div class="header">
+      <h1>🚀 Naukri Login</h1>
+      <p>Securely authenticate with Naukri API</p>
+    </div>
+
+    <!-- Session Status -->
+    <% status = @session_status %>
+    <% if status[:status] == "valid" %>
+      <div class="session-status status-valid">
+        ✅ Active Session
+        <div style="margin-top: 8px; font-size: 12px;">
+          Logged in as: <strong><%= status[:email] %></strong><br>
+          Expires in: <strong><%= status[:hours_left] %> hours</strong>
+        </div>
+      </div>
+    <% elsif status[:status] == "expiring_soon" %>
+      <div class="session-status status-expiring">
+        ⚠️ Session Expiring Soon
+        <div style="margin-top: 8px; font-size: 12px;">
+          Expires in: <strong><%= status[:hours_left] %> hours</strong>
+        </div>
+      </div>
+    <% else %>
+      <div class="session-status status-none">
+        No active session - Login required
+      </div>
+    <% end %>
+
+    <div id="alertContainer"></div>
+
+    <!-- Login Form -->
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="your@email.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Your password" required>
+      </div>
+
+      <div class="loading" id="loginLoading">
+        <div class="spinner"></div>
+        <p>Logging in...</p>
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn-primary" id="loginBtn">Login</button>
+        <% if status[:status] == "valid" %>
+          <button type="button" class="btn-secondary" id="logoutBtn">Logout</button>
+        <% end %>
+      </div>
+    </form>
+
+    <!-- MFA Form -->
+    <form id="mfaForm">
+      <div class="mfa-info">
+        📧 OTP code sent to your email. Enter it below to complete login.
+      </div>
+
+      <div class="form-group">
+        <label for="otpCode">OTP Code (6 digits)</label>
+        <input type="text" id="otpCode" name="otp_code" placeholder="123456" maxlength="6" required>
+      </div>
+
+      <div class="loading" id="mfaLoading">
+        <div class="spinner"></div>
+        <p>Verifying OTP...</p>
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn-primary" id="verifyBtn">Verify OTP</button>
+        <button type="button" class="btn-secondary" id="backBtn">Back</button>
+      </div>
+    </form>
+
+    <div class="link">
+      <a href="#" id="sessionInfoLink">View Session Info</a>
+    </div>
+
+    <div class="link">
+      <a href="/resume_upload" id="">Upload Resume</a>
+    </div>
+
+    <div class="link">
+      <a href="/resume/upload_naukari" id="">Upload Resume on Naukri</a>
+    </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const mfaForm = document.getElementById('mfaForm');
+    const alertContainer = document.getElementById('alertContainer');
+    let tempEmail = '';
+    let tempPassword = '';
+
+    // Login
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      tempEmail = document.getElementById('email').value;
+      tempPassword = document.getElementById('password').value;
+
+      showLoading('loginLoading');
+
+      try {
+        const response = await fetch('<%= naukri_login_path %>', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: tempEmail, password: tempPassword })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('Login successful! Redirecting...', 'success');
+          setTimeout(() => location.reload(), 1500);
+        } else if (data.data && data.data.requires_mfa) {
+          showAlert('MFA required - OTP sent to your email', 'info');
+          loginForm.style.display = 'none';
+          mfaForm.classList.add('show');
+        } else {
+          showAlert(data.message, 'error');
+        }
+      } catch (error) {
+        showAlert(`Error: ${error.message}`, 'error');
+      } finally {
+        hideLoading('loginLoading');
+      }
+    });
+
+    // Verify OTP
+    mfaForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const otpCode = document.getElementById('otpCode').value;
+
+      showLoading('mfaLoading');
+
+      try {
+        const response = await fetch('<%= naukri_verify_otp_path %>', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            otp_code: otpCode,
+            email: tempEmail,
+            password: tempPassword
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('OTP verified! Logging in...', 'success');
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          showAlert(data.message, 'error');
+        }
+      } catch (error) {
+        showAlert(`Error: ${error.message}`, 'error');
+      } finally {
+        hideLoading('mfaLoading');
+      }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+      try {
+        const response = await fetch('<%= naukri_logout_path %>', { method: 'POST' });
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('Logged out successfully!', 'success');
+          setTimeout(() => location.reload(), 1000);
+        }
+      } catch (error) {
+        showAlert(`Error: ${error.message}`, 'error');
+      }
+    });
+
+    // Back button
+    document.getElementById('backBtn').addEventListener('click', () => {
+      mfaForm.classList.remove('show');
+      loginForm.style.display = 'block';
+    });
+
+    // View Session Info
+    document.getElementById('sessionInfoLink').addEventListener('click', async (e) => {
+      e.preventDefault();
+
+      try {
+        const response = await fetch('<%= naukri_session_info_path %>');
+        const data = await response.json();
+
+        if (data.success) {
+          alert(`Session Info:\n\nEmail: ${data.data.email}\nUser ID: ${data.data.user_id}\nExpires: ${data.data.expires_at}`);
+        } else {
+          alert('No active session');
+        }
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+      }
+    });
+
+    function showAlert(message, type) {
+      alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+    }
+
+    function showLoading(elementId) {
+      document.getElementById(elementId).classList.add('show');
+    }
+
+    function hideLoading(elementId) {
+      document.getElementById(elementId).classList.remove('show');
+    }
+  </script>
+

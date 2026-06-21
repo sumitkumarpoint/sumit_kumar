@@ -1,0 +1,36 @@
+{
+  "token": "eyJraWQiOiIzIiwidHlwIjoiSldUIiwiYWxnIjoiUlM1MTIifQ.eyJkZXZpY2VUeXBlIjoiZDNza3QwcCIsInVkX3Jlc0lkIjoxMjUyNTUxMDksInN1YiI6IjEzMzk4NzEzNSIsInVkX3VzZXJuYW1lIjoic3VtaXRrdW1hcnBvaW50QGdtYWlsLmNvbSIsInVkX2lzRW1haWwiOnRydWUsImlzcyI6IkluZm9FZGdlIEluZGlhIFB2dC4gTHRkLiIsInVzZXJBZ2VudCI6Ik1vemlsbGEvNS4wIChNYWNpbnRvc2g7IEludGVsIE1hYyBPUyBYIDEwXzE1XzcpIEFwcGxlV2ViS2l0LzUzNy4zNiIsImlwQWRyZXNzIjoiMTUyLjU5LjE4Mi44OCIsInVkX2lzVGVjaE9wc0xvZ2luIjpmYWxzZSwidXNlcklkIjoxMzM5ODcxMzUsInN1YlVzZXJUeXBlIjoiam9ic2Vla2VyIiwidXNlclN0YXRlIjoiQVVUSEVOVElDQVRFRCIsInVkX2lzUGFpZENsaWVudCI6ZmFsc2UsInVkX2VtYWlsVmVyaWZpZWQiOnRydWUsInVzZXJUeXBlIjoiam9ic2Vla2VyIiwic2Vzc2lvblN0YXRUaW1lIjoiMjAyNi0wNi0yMVQwOTo1NDo0NyIsInVkX2VtYWlsIjoic3VtaXRrdW1hcnBvaW50QGdtYWlsLmNvbSIsInVzZXJSb2xlIjoidXNlciIsImV4cCI6MTc4MjAxOTQ4NywidG9rZW5UeXBlIjoiYWNjZXNzVG9rZW4iLCJpYXQiOjE3ODIwMTU4ODcsImp0aSI6IjJlZDQ2YTFiMGNkMTRmNmM4NzRiNmVhZjJhOTE3MmIxIiwicG9kSWQiOiJwcm9kLTViYmM2YmI1OWItNG1uMnoifQ.tIrnbzQdAnKRNlOHGPLGcJ0UcfMOPQ1rAgOUCKReipn3Hfv_KMEGYyw4Utca_u3cok5Cx0hutDbctI9rN7yVHe9mIJJCNmel3Ep_2xAUZiao4voALYsOObO1yRForu0kjJr1XySFKfUBvaDlJanT-njUW4UrRjbD4OR_rN_ToOVmsn4HuhrVknY9jP32lbn9OHqtgx7L1MmkF_cdPM6KZaQyMT-HtFvoj1kfRVjThM6ULKfioMV-uwIXF0XX8e7EAwt4TcTBL8me3qH1W3s4dkbknRtJdz0NdZrTvzTmIqkwsEGDzZA73jKZN7K1TWI5gyD7jVz64l2MCN1okZYB5A",
+  "cookies": {
+    "nauk_at": "eyJraWQiOiIzIiwidHlwIjoiSldUIiwiYWxnIjoiUlM1MTIifQ.eyJkZXZpY2VUeXBlIjoiZDNza3QwcCIsInVkX3Jlc0lkIjoxMjUyNTUxMDksInN1YiI6IjEzMzk4NzEzNSIsInVkX3VzZXJuYW1lIjoic3VtaXRrdW1hcnBvaW50QGdtYWlsLmNvbSIsInVkX2lzRW1haWwiOnRydWUsImlzcyI6IkluZm9FZGdlIEluZGlhIFB2dC4gTHRkLiIsInVzZXJBZ2VudCI6Ik1vemlsbGEvNS4wIChNYWNpbnRvc2g7IEludGVsIE1hYyBPUyBYIDEwXzE1XzcpIEFwcGxlV2ViS2l0LzUzNy4zNiIsImlwQWRyZXNzIjoiMTUyLjU5LjE4Mi44OCIsInVkX2lzVGVjaE9wc0xvZ2luIjpmYWxzZSwidXNlcklkIjoxMzM5ODcxMzUsInN1YlVzZXJUeXBlIjoiam9ic2Vla2VyIiwidXNlclN0YXRlIjoiQVVUSEVOVElDQVRFRCIsInVkX2lzUGFpZENsaWVudCI6ZmFsc2UsInVkX2VtYWlsVmVyaWZpZWQiOnRydWUsInVzZXJUeXBlIjoiam9ic2Vla2VyIiwic2Vzc2lvblN0YXRUaW1lIjoiMjAyNi0wNi0yMVQwOTo1NDo0NyIsInVkX2VtYWlsIjoic3VtaXRrdW1hcnBvaW50QGdtYWlsLmNvbSIsInVzZXJSb2xlIjoidXNlciIsImV4cCI6MTc4MjAxOTQ4NywidG9rZW5UeXBlIjoiYWNjZXNzVG9rZW4iLCJpYXQiOjE3ODIwMTU4ODcsImp0aSI6IjJlZDQ2YTFiMGNkMTRmNmM4NzRiNmVhZjJhOTE3MmIxIiwicG9kSWQiOiJwcm9kLTViYmM2YmI1OWItNG1uMnoifQ.tIrnbzQdAnKRNlOHGPLGcJ0UcfMOPQ1rAgOUCKReipn3Hfv_KMEGYyw4Utca_u3cok5Cx0hutDbctI9rN7yVHe9mIJJCNmel3Ep_2xAUZiao4voALYsOObO1yRForu0kjJr1XySFKfUBvaDlJanT-njUW4UrRjbD4OR_rN_ToOVmsn4HuhrVknY9jP32lbn9OHqtgx7L1MmkF_cdPM6KZaQyMT-HtFvoj1kfRVjThM6ULKfioMV-uwIXF0XX8e7EAwt4TcTBL8me3qH1W3s4dkbknRtJdz0NdZrTvzTmIqkwsEGDzZA73jKZN7K1TWI5gyD7jVz64l2MCN1okZYB5A",
+    "nauk_rt": "2ed46a1b0cd14f6c874b6eaf2a9172b1",
+    "is_login": "1",
+    "nauk_sid": "2ed46a1b0cd14f6c874b6eaf2a9172b1",
+    "nauk_otl": "2ed46a1b0cd14f6c874b6eaf2a9172b1",
+    "failLoginCount": "0",
+    "NKWAP": "0a11a4ef2a2d292d958805de199711c43ae1b345417f33a0f9f2fdf03dc560d19a86cc384cde9c370d99ad6a3af22255~0a11a4ef2a2d292d958805de199711c43ae1b345417f33a0f9f2fdf03dc560d19a86cc384cde9c370d99ad6a3af22255~1~0",
+    "MYNAUKRI[UNID]": "e2662cc67fd148449a5344a938432eda",
+    "nauk_ps": "default",
+    "nauk_cs": "default"
+  },
+  "user_info": {
+    "userId": 133987135,
+    "userType": "jobseeker",
+    "userRole": "user",
+    "deviceType": "d3skt0p",
+    "ipAddress": "152.59.182.88",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    "subUserType": "jobseeker",
+    "userData": {
+      "username": "sumitkumarpoint@gmail.com",
+      "email": "sumitkumarpoint@gmail.com",
+      "serviceType": "",
+      "resId": 125255109,
+      "isTechOpsLogin": false,
+      "isEmail": true,
+      "isPaidClient": false,
+      "emailVerified": true
+    }
+  },
+  "created_at": "2026-06-21T04:24:47Z",
+  "expires_at": "2026-06-21T05:24:47+00:00"
+}

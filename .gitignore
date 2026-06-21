@@ -14,6 +14,7 @@
 /log/*
 /tmp/*
 !/tmp/cookie.json
+!/tmp/session.json
 !/tmp/data.json
 !/tmp/resumes
 !/log/.keep

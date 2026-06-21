@@ -68,6 +68,8 @@ class ResumesController < ApplicationController
   end
 
   def upload_naukari
+    require 'rake'
+    Rails.application.load_tasks
     begin
       # Run rake task
       Rails.application.load_tasks unless Rake::Task.task_defined?("naukri:upload_resume")

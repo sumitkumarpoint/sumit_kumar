@@ -198,17 +198,19 @@ module Naukri
     end
 
     # Verify OTP/MFA code
-    def verify_otp(otp_code)
+    def verify_otp(email, otp_code)
       @logger.info "[Naukri::AuthService] Verifying OTP..."
 
-      response = connection.post(CONFIG[:login_url]) do |req|
+      response = connection.post(CONFIG[:login_otp_url]) do |req|
         req.headers.merge!(BASE_HEADERS)
         req.body = {
-          username: CONFIG[:email],
-          password: CONFIG[:password],
-          isEncoded: false,
-          flowId: @mfa_flow_id,
-          otp: otp_code
+          username: email,
+          # password: CONFIG[:password],
+          # isEncoded: false,
+          flowId: "mfa-login-email",
+          isLoginByEmail: true,
+          isLoginByMobile: false,
+          token: otp_code
         }.to_json
       end
 
@@ -216,6 +218,7 @@ module Naukri
 
       if response.success?
         extract_auth_data(response, body)
+        write_cookies(@token, cookie_string)
         @logger.info "[Naukri::AuthService] ✅ OTP verified, login successful"
         Result.success(user_info: @user_info, token: @token)
       else
@@ -237,14 +240,14 @@ module Naukri
     end
 
     def auth_headers
-      token = stored_cookie['stored_cookie'] # || @token
-      string = stored_cookie['naukri_auth_cookies'] # || cookie_string
-      write_cookies(token, string)
-      # BASE_HEADERS.merge(
-      #   "Authorization" => "Bearer #{@token}",
-      #   "Cookie"        => string
-      # ).compact
-      {"Content-Type"=>"application/json", "Accept"=>"application/json", "appid"=>"105", "clientid"=>"d3skt0p", "systemid"=>"jobseeker", "User-Agent"=>"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36", "gid"=>"LOCATION,FIELD_DESIGNATION,INDUSTRY,SKILLS", "Authorization"=>"Bearer eyJraWQiOiIzIiwidHlwIjoiSldUIiwiYWxnIjoiUlM1MTIifQ.eyJkZXZpY2VUeXBlIjoiZDNza3QwcCIsInVkX3Jlc0lkIjoxMjUyNTUxMDksInN1YiI6IjEzMzk4NzEzNSIsInVkX3VzZXJuYW1lIjoic3VtaXRrdW1hcnBvaW50QGdtYWlsLmNvbSIsInVkX2lzRW1haWwiOnRydWUsImlzcyI6IkluZm9FZGdlIEluZGlhIFB2dC4gTHRkLiIsInVzZXJBZ2VudCI6Ik1vemlsbGEvNS4wIChNYWNpbnRvc2g7IEludGVsIE1hYyBPUyBYIDEwXzE1XzcpIEFwcGxlV2ViS2l0LzUzNy4zNiIsImlwQWRyZXNzIjoiMTUyLjU4LjE1My43MSIsInVkX2lzVGVjaE9wc0xvZ2luIjpmYWxzZSwidXNlcklkIjoxMzM5ODcxMzUsInN1YlVzZXJUeXBlIjoiam9ic2Vla2VyIiwidXNlclN0YXRlIjoiQVVUSEVOVElDQVRFRCIsInVkX2lzUGFpZENsaWVudCI6ZmFsc2UsInVkX2VtYWlsVmVyaWZpZWQiOnRydWUsInVzZXJUeXBlIjoiam9ic2Vla2VyIiwic2Vzc2lvblN0YXRUaW1lIjoiMjAyNi0wNi0wM1QxNzozMjo0NiIsInVkX2VtYWlsIjoic3VtaXRrdW1hcnBvaW50QGdtYWlsLmNvbSIsInVzZXJSb2xlIjoidXNlciIsImV4cCI6MTc4MDQ5MTc2NiwidG9rZW5UeXBlIjoiYWNjZXNzVG9rZW4iLCJpYXQiOjE3ODA0ODgxNjYsImp0aSI6ImQwZWI2OTJhZDRlYjQ4YWNhYmMyMzcxZWU3NGM1ZDBiIiwicG9kSWQiOiJwcm9kLTc1YzdkOTk5ZC1rd2o0aiJ9.McUpSuaMIWD-pJNfRD5pIxplJx49DmGEls4RWqJ3B7mXfPA4hMPwS5UcsSOhQt2l4syJuHvYQOE45oSXoXuoXgmATsDNkztf6eVmJQLTydSEEIvqSbpgjnelNbopVToUADGd-piBUsJn4ZImJYv0y6omhfakQTpl4kTgqB8ez8GE8Xpv6y2wFCWYkISUB9b1kpXXyVjRrgMGPFl0dITJdXJcXFx57jpirFDYBiMN7Z_POdrjTDrb_2JpMeVk3AI9xJ4FJrCcX4I4xLWDHpmUtdL56qLfUpL1oeEG8gYQNWio4fG2RWTti3S4WaB2_eVQU_4yw_M5n54FPQZGd0m9vQ", "Cookie"=>"nauk_at=eyJraWQiOiIzIiwidHlwIjoiSldUIiwiYWxnIjoiUlM1MTIifQ.eyJkZXZpY2VUeXBlIjoiZDNza3QwcCIsInVkX3Jlc0lkIjoxMjUyNTUxMDksInN1YiI6IjEzMzk4NzEzNSIsInVkX3VzZXJuYW1lIjoic3VtaXRrdW1hcnBvaW50QGdtYWlsLmNvbSIsInVkX2lzRW1haWwiOnRydWUsImlzcyI6IkluZm9FZGdlIEluZGlhIFB2dC4gTHRkLiIsInVzZXJBZ2VudCI6Ik1vemlsbGEvNS4wIChNYWNpbnRvc2g7IEludGVsIE1hYyBPUyBYIDEwXzE1XzcpIEFwcGxlV2ViS2l0LzUzNy4zNiIsImlwQWRyZXNzIjoiMTUyLjU4LjE1My43MSIsInVkX2lzVGVjaE9wc0xvZ2luIjpmYWxzZSwidXNlcklkIjoxMzM5ODcxMzUsInN1YlVzZXJUeXBlIjoiam9ic2Vla2VyIiwidXNlclN0YXRlIjoiQVVUSEVOVElDQVRFRCIsInVkX2lzUGFpZENsaWVudCI6ZmFsc2UsInVkX2VtYWlsVmVyaWZpZWQiOnRydWUsInVzZXJUeXBlIjoiam9ic2Vla2VyIiwic2Vzc2lvblN0YXRUaW1lIjoiMjAyNi0wNi0wM1QxNzozMjo0NiIsInVkX2VtYWlsIjoic3VtaXRrdW1hcnBvaW50QGdtYWlsLmNvbSIsInVzZXJSb2xlIjoidXNlciIsImV4cCI6MTc4MDQ5MTc2NiwidG9rZW5UeXBlIjoiYWNjZXNzVG9rZW4iLCJpYXQiOjE3ODA0ODgxNjYsImp0aSI6ImQwZWI2OTJhZDRlYjQ4YWNhYmMyMzcxZWU3NGM1ZDBiIiwicG9kSWQiOiJwcm9kLTc1YzdkOTk5ZC1rd2o0aiJ9.McUpSuaMIWD-pJNfRD5pIxplJx49DmGEls4RWqJ3B7mXfPA4hMPwS5UcsSOhQt2l4syJuHvYQOE45oSXoXuoXgmATsDNkztf6eVmJQLTydSEEIvqSbpgjnelNbopVToUADGd-piBUsJn4ZImJYv0y6omhfakQTpl4kTgqB8ez8GE8Xpv6y2wFCWYkISUB9b1kpXXyVjRrgMGPFl0dITJdXJcXFx57jpirFDYBiMN7Z_POdrjTDrb_2JpMeVk3AI9xJ4FJrCcX4I4xLWDHpmUtdL56qLfUpL1oeEG8gYQNWio4fG2RWTti3S4WaB2_eVQU_4yw_M5n54FPQZGd0m9vQ; nauk_rt=d0eb692ad4eb48acabc2371ee74c5d0b; is_login=1; nauk_sid=d0eb692ad4eb48acabc2371ee74c5d0b; nauk_otl=d0eb692ad4eb48acabc2371ee74c5d0b; failLoginCount=0; NKWAP=0a11a4ef2a2d292d958805de199711c43ae1b345417f33a0f9f2fdf03dc560d19a86cc384cde9c370d99ad6a3af22255~0a11a4ef2a2d292d958805de199711c43ae1b345417f33a0f9f2fdf03dc560d19a86cc384cde9c370d99ad6a3af22255~1~0; MYNAUKRI[UNID]=e2662cc67fd148449a5344a938432eda; nauk_ps=default; nauk_cs=default"}
+      token = stored_cookie['naukri_auth_token']  || @token
+      string = stored_cookie['naukri_auth_cookies'] || cookie_string
+      # write_cookies(token, string)
+      BASE_HEADERS.merge(
+        "Authorization" => "Bearer #{token}",
+        "Cookie"        => string
+      ).compact
+      # {"Content-Type"=>"application/json", "Accept"=>"application/json", "appid"=>"105", "clientid"=>"d3skt0p", "systemid"=>"jobseeker", "User-Agent"=>"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36", "gid"=>"LOCATION,FIELD_DESIGNATION,INDUSTRY,SKILLS", "Authorization"=>"Bearer eyJraWQiOiIzIiwidHlwIjoiSldUIiwiYWxnIjoiUlM1MTIifQ.eyJkZXZpY2VUeXBlIjoiZDNza3QwcCIsInVkX3Jlc0lkIjoxMjUyNTUxMDksInN1YiI6IjEzMzk4NzEzNSIsInVkX3VzZXJuYW1lIjoic3VtaXRrdW1hcnBvaW50QGdtYWlsLmNvbSIsInVkX2lzRW1haWwiOnRydWUsImlzcyI6IkluZm9FZGdlIEluZGlhIFB2dC4gTHRkLiIsInVzZXJBZ2VudCI6Ik1vemlsbGEvNS4wIChNYWNpbnRvc2g7IEludGVsIE1hYyBPUyBYIDEwXzE1XzcpIEFwcGxlV2ViS2l0LzUzNy4zNiIsImlwQWRyZXNzIjoiMTUyLjU4LjE1My43MSIsInVkX2lzVGVjaE9wc0xvZ2luIjpmYWxzZSwidXNlcklkIjoxMzM5ODcxMzUsInN1YlVzZXJUeXBlIjoiam9ic2Vla2VyIiwidXNlclN0YXRlIjoiQVVUSEVOVElDQVRFRCIsInVkX2lzUGFpZENsaWVudCI6ZmFsc2UsInVkX2VtYWlsVmVyaWZpZWQiOnRydWUsInVzZXJUeXBlIjoiam9ic2Vla2VyIiwic2Vzc2lvblN0YXRUaW1lIjoiMjAyNi0wNi0wM1QxNzozMjo0NiIsInVkX2VtYWlsIjoic3VtaXRrdW1hcnBvaW50QGdtYWlsLmNvbSIsInVzZXJSb2xlIjoidXNlciIsImV4cCI6MTc4MDQ5MTc2NiwidG9rZW5UeXBlIjoiYWNjZXNzVG9rZW4iLCJpYXQiOjE3ODA0ODgxNjYsImp0aSI6ImQwZWI2OTJhZDRlYjQ4YWNhYmMyMzcxZWU3NGM1ZDBiIiwicG9kSWQiOiJwcm9kLTc1YzdkOTk5ZC1rd2o0aiJ9.McUpSuaMIWD-pJNfRD5pIxplJx49DmGEls4RWqJ3B7mXfPA4hMPwS5UcsSOhQt2l4syJuHvYQOE45oSXoXuoXgmATsDNkztf6eVmJQLTydSEEIvqSbpgjnelNbopVToUADGd-piBUsJn4ZImJYv0y6omhfakQTpl4kTgqB8ez8GE8Xpv6y2wFCWYkISUB9b1kpXXyVjRrgMGPFl0dITJdXJcXFx57jpirFDYBiMN7Z_POdrjTDrb_2JpMeVk3AI9xJ4FJrCcX4I4xLWDHpmUtdL56qLfUpL1oeEG8gYQNWio4fG2RWTti3S4WaB2_eVQU_4yw_M5n54FPQZGd0m9vQ", "Cookie"=>"nauk_at=eyJraWQiOiIzIiwidHlwIjoiSldUIiwiYWxnIjoiUlM1MTIifQ.eyJkZXZpY2VUeXBlIjoiZDNza3QwcCIsInVkX3Jlc0lkIjoxMjUyNTUxMDksInN1YiI6IjEzMzk4NzEzNSIsInVkX3VzZXJuYW1lIjoic3VtaXRrdW1hcnBvaW50QGdtYWlsLmNvbSIsInVkX2lzRW1haWwiOnRydWUsImlzcyI6IkluZm9FZGdlIEluZGlhIFB2dC4gTHRkLiIsInVzZXJBZ2VudCI6Ik1vemlsbGEvNS4wIChNYWNpbnRvc2g7IEludGVsIE1hYyBPUyBYIDEwXzE1XzcpIEFwcGxlV2ViS2l0LzUzNy4zNiIsImlwQWRyZXNzIjoiMTUyLjU4LjE1My43MSIsInVkX2lzVGVjaE9wc0xvZ2luIjpmYWxzZSwidXNlcklkIjoxMzM5ODcxMzUsInN1YlVzZXJUeXBlIjoiam9ic2Vla2VyIiwidXNlclN0YXRlIjoiQVVUSEVOVElDQVRFRCIsInVkX2lzUGFpZENsaWVudCI6ZmFsc2UsInVkX2VtYWlsVmVyaWZpZWQiOnRydWUsInVzZXJUeXBlIjoiam9ic2Vla2VyIiwic2Vzc2lvblN0YXRUaW1lIjoiMjAyNi0wNi0wM1QxNzozMjo0NiIsInVkX2VtYWlsIjoic3VtaXRrdW1hcnBvaW50QGdtYWlsLmNvbSIsInVzZXJSb2xlIjoidXNlciIsImV4cCI6MTc4MDQ5MTc2NiwidG9rZW5UeXBlIjoiYWNjZXNzVG9rZW4iLCJpYXQiOjE3ODA0ODgxNjYsImp0aSI6ImQwZWI2OTJhZDRlYjQ4YWNhYmMyMzcxZWU3NGM1ZDBiIiwicG9kSWQiOiJwcm9kLTc1YzdkOTk5ZC1rd2o0aiJ9.McUpSuaMIWD-pJNfRD5pIxplJx49DmGEls4RWqJ3B7mXfPA4hMPwS5UcsSOhQt2l4syJuHvYQOE45oSXoXuoXgmATsDNkztf6eVmJQLTydSEEIvqSbpgjnelNbopVToUADGd-piBUsJn4ZImJYv0y6omhfakQTpl4kTgqB8ez8GE8Xpv6y2wFCWYkISUB9b1kpXXyVjRrgMGPFl0dITJdXJcXFx57jpirFDYBiMN7Z_POdrjTDrb_2JpMeVk3AI9xJ4FJrCcX4I4xLWDHpmUtdL56qLfUpL1oeEG8gYQNWio4fG2RWTti3S4WaB2_eVQU_4yw_M5n54FPQZGd0m9vQ; nauk_rt=d0eb692ad4eb48acabc2371ee74c5d0b; is_login=1; nauk_sid=d0eb692ad4eb48acabc2371ee74c5d0b; nauk_otl=d0eb692ad4eb48acabc2371ee74c5d0b; failLoginCount=0; NKWAP=0a11a4ef2a2d292d958805de199711c43ae1b345417f33a0f9f2fdf03dc560d19a86cc384cde9c370d99ad6a3af22255~0a11a4ef2a2d292d958805de199711c43ae1b345417f33a0f9f2fdf03dc560d19a86cc384cde9c370d99ad6a3af22255~1~0; MYNAUKRI[UNID]=e2662cc67fd148449a5344a938432eda; nauk_ps=default; nauk_cs=default"}
       end
 
     # Validate if stored cookies are still valid
@@ -347,6 +350,8 @@ module Naukri
         
         # Extract refreshed cookies from response headers if any
         new_cookies = extract_cookies_from_headers(response)
+        Naukri::SessionManager.update_cookies(new_cookies)
+        cookies_updated = true
         @cookies.merge!(new_cookies) if new_cookies.any?
         token = @token || stored_cookie['naukri_auth_token']
         extract_auth_data(response, body)
@@ -376,6 +381,18 @@ module Naukri
       }
 
       File.write(data_file, JSON.pretty_generate(new_data))
+    end
+
+    # Make perform_login accessible
+    def perform_manual_login
+      response = connection.post(CONFIG[:login_url]) do |req|
+        req.headers.merge!(BASE_HEADERS)
+        req.body = login_payload.to_json
+      end
+      handle_login_response(response)
+    rescue Faraday::Error => e
+      @logger.error "[Naukri::AuthService] Connection error: #{e.message}"
+      Result.failure("Connection failed: #{e.message}")
     end
 
     private
@@ -578,180 +595,3 @@ module Naukri
     end
   end
 end
-
-
-
-# # app/services/naukri/auth_service.rb
-# require "faraday"
-# require "json"
-
-# module Naukri
-#   class AuthService
-#     attr_reader :token, :cookies, :user_info, :profile_id
-
-#     CONFIG = Rails.application.config_for(:naukri).freeze
-
-#     BASE_HEADERS = {
-#       "Content-Type"    => "application/json",
-#       "Accept"          => "application/json",
-#       "appid"           => "105",
-#       "clientid"        => "d3skt0p",
-#       "systemid"        => "jobseeker",
-#       "User-Agent"      => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-#       "gid"             => "LOCATION,FIELD_DESIGNATION,INDUSTRY,SKILLS"
-#     }.freeze
-
-#     def initialize
-#       @token     = nil
-#       @cookies   = {}
-#       @user_info = {}
-#       @profile_id = nil
-#       @logger    = Rails.logger
-#       @mfa_flow_id = nil
-#     end
-
-#     def login(mfa_code = nil)
-#       @logger.info "[Naukri::AuthService] Attempting login for #{CONFIG[:email]}"
-#       validate_credentials!
-
-#       if mfa_code.present? && @mfa_flow_id.present?
-#         verify_mfa(mfa_code)
-#       else
-#         perform_login
-#       end
-#     end
-
-#     def logged_in?
-#       @token.present? || @cookies.any?
-#     end
-
-#     def cookie_string
-#       @cookies.map { |k, v| "#{k}=#{v}" }.join("; ")
-#     end
-
-#     def auth_headers
-#       BASE_HEADERS.merge(
-#         "Authorization" => "Bearer #{@token}",
-#         "Cookie"        => cookie_string
-#       ).compact
-#     end
-
-#     private
-
-#     def perform_login
-#       response = connection.post(CONFIG[:login_url]) do |req|
-#         req.headers.merge!(BASE_HEADERS)
-#         req.body = login_payload.to_json
-#       end
-
-#       handle_login_response(response)
-#     rescue Faraday::Error => e
-#       @logger.error "[Naukri::AuthService] Connection error: #{e.message}"
-#       Result.failure("Connection failed: #{e.message}")
-#     end
-
-#     def handle_login_response(response)
-#       body = parse_body(response.body)
-
-#       # Check if MFA is required
-#       if response.status == 403 && body["message"]&.include?("MFA")
-#         @logger.warn "[Naukri::AuthService] ⚠️  MFA required"
-#         @mfa_flow_id = body.dig("data", "flowId")
-#         email = body.dig("data", "email")
-        
-#         return Result.failure(
-#           "MFA Required: Verification code sent to #{email}. Run: rails naukri:verify_mfa CODE=123456",
-#           { requires_mfa: true, flow_id: @mfa_flow_id, email: email }
-#         )
-#       end
-
-#       if response.success?
-#         extract_auth_data(response, body)
-#         @logger.info "[Naukri::AuthService] ✅ Login successful"
-#         Result.success(user_info: @user_info, token: @token)
-#       else
-#         @logger.error "[Naukri::AuthService] ❌ Login failed [#{response.status}]: #{response.body}"
-#         Result.failure("Login failed: #{response.body}")
-#       end
-#     end
-
-#     def verify_mfa(mfa_code)
-#       @logger.info "[Naukri::AuthService] Verifying MFA code..."
-
-#       mfa_url = "#{CONFIG[:login_url]}/mfa/verify"
-
-#       response = connection.post(mfa_url) do |req|
-#         req.headers.merge!(BASE_HEADERS)
-#         req.body = {
-#           flowId: @mfa_flow_id,
-#           otp:    mfa_code
-#         }.to_json
-#       end
-
-#       if response.success?
-#         body = parse_body(response.body)
-#         extract_auth_data(response, body)
-#         @logger.info "[Naukri::AuthService] ✅ MFA verified"
-#         Result.success(user_info: @user_info, token: @token)
-#       else
-#         @logger.error "[Naukri::AuthService] ❌ MFA verification failed"
-#         Result.failure("MFA verification failed: #{response.body}")
-#       end
-#     end
-
-#     def extract_auth_data(response, body)
-#       @token     = extract_token(response, body)
-#       @cookies   = extract_cookies(response)
-#       @user_info = body.dig("data", "user") || body["user"] || {}
-#       @profile_id = @user_info.dig("profileId") || @user_info["profileId"]
-#     end
-
-#     def extract_token(response, body)
-#       body["token"] ||
-#         body.dig("data", "token") ||
-#         extract_cookie_token(response)
-#     end
-
-#     def extract_cookie_token(response)
-#       raw = response.headers["set-cookie"].to_s
-#       match = raw.match(/nauk_at=([^;]+)/)
-#       match&.[](1)
-#     end
-
-#     def extract_cookies(response)
-#       raw_cookies = response.headers["set-cookie"].to_s
-#       raw_cookies.split(",").each_with_object({}) do |cookie, hash|
-#         key, value = cookie.split(";").first.to_s.split("=", 2)
-#         next if key.blank?
-#         hash[key.strip] = value&.strip
-#       end
-#     end
-
-#     def login_payload
-#       {
-#         username:  CONFIG[:email],
-#         password:  CONFIG[:password],
-#         isEncoded: false
-#       }
-#     end
-
-#     def validate_credentials!
-#       raise ArgumentError, "NAUKRI_EMAIL not set" if CONFIG[:email].blank?
-#       raise ArgumentError, "NAUKRI_PASSWORD not set" if CONFIG[:password].blank?
-#     end
-
-#     def connection
-#       @connection ||= Faraday.new do |f|
-#         f.options.timeout      = 30
-#         f.options.open_timeout = 10
-#         f.adapter Faraday.default_adapter
-#       end
-#     end
-
-#     def parse_body(body)
-#       JSON.parse(body)
-#     rescue JSON::ParserError
-#       {}
-#     end
-#   end
-# end
